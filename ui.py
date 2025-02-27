@@ -132,7 +132,7 @@ def create_ui(physics):
     gravity_entry.bind("<Return>", lambda e: gravity_var.set(round(float(gravity_entry.get()), 2)))
 
     ctk.CTkLabel(root, text="Скорость (м/с):").grid(row=5, column=0, padx=10, pady=10)
-    velocity_slider = ctk.CTkSlider(root, from_=0, to=50, variable=velocity_var, command=update_velocity)
+    velocity_slider = ctk.CTkSlider(root, from_=0, to=30, variable=velocity_var, command=update_velocity)
     velocity_slider.grid(row=5, column=1, padx=10, pady=10)
     velocity_entry = ctk.CTkEntry(root, width=80)
     velocity_entry.insert(0, str(velocity_var.get()))

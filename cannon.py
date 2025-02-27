@@ -4,7 +4,7 @@ import pymunk
 from ui import UIData
 
 class Cannon:
-    def __init__(self, physics):
+    def __init__(self, physics): #инициализация пушки
         self.physics = physics
         self.x = 100
         self.y = physics.height - 25
@@ -17,7 +17,8 @@ class Cannon:
         self.scale_font = None
         self._setup_collision_handler()
 
-    def _setup_collision_handler(self):
+    # отслеживает столкновение с землей, чтобы остановить таймер (единственный способ, который у меня заработал)
+    def _setup_collision_handler(self): 
         handler = self.physics.space.add_collision_handler(0, 0)
         handler.data["cannon"] = self
         handler.post_solve = self._collision_callback
@@ -32,6 +33,7 @@ class Cannon:
                         if cannon.end_time == 0:
                             cannon.end_time = pygame.time.get_ticks()
 
+    # обрабатывает нажатие мыши - перезаряжает пушку
     def handle_mouse_down(self, event):
         if event.button == 1:
             if self.ball:
@@ -40,6 +42,7 @@ class Cannon:
             self.trajectory_points = []
             self.ball = self.create_ball()
 
+    # создает мяч для выстрела
     def create_ball(self):
         ball = self.physics.add_ball(
             radius=UIData.radius,
@@ -51,6 +54,7 @@ class Cannon:
         ball.body.body_type = pymunk.Body.KINEMATIC
         return ball
 
+    # обрабатывает "выстрел из пушки"
     def handle_mouse_up(self, event):
         if event.button == 1 and self.ball:
             self.ball.body.body_type = pymunk.Body.DYNAMIC
@@ -62,11 +66,13 @@ class Cannon:
             self.start_time = pygame.time.get_ticks()
             self.end_time = 0
 
-    def update(self):
+    # обновляет состояние пушки
+    def update(self): 
         if self.fired and self.ball:
             x, y = self.ball.body.position
-            self.trajectory_points.append((x, y))
+            self.trajectory_points.append((x, y)) # добавляет траекторию
 
+    # отрисовывает пушку и элементы интерфейса
     def draw(self, screen):
         if self.font is None:
             self.font = pygame.font.SysFont('Arial', 30)
@@ -106,6 +112,7 @@ class Cannon:
             timer_text = self.font.render(f"Время: {elapsed_time:.2f} сек", True, (0, 0, 0))
             screen.blit(timer_text, (screen.get_width() - 220, 10))
 
+    # сбрасывает состояние пушки
     def reset(self):
         if self.ball:
             self.physics.space.remove(self.ball.body, self.ball)

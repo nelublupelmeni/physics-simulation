@@ -10,6 +10,7 @@ class Slingshot:
         self.pressed_pos = None
         self.is_dragging = False
 
+    # обрабатывает нажатие мыши для создания мяча
     def handle_mouse_down(self, event):
         if event.button == 1:
             if not self.ball:
@@ -24,6 +25,7 @@ class Slingshot:
                 self.ball.body.body_type = pymunk.Body.STATIC
                 self.is_dragging = True
 
+    # обрабатывает отпускание мыши для выстрела
     def handle_mouse_up(self, event):
         if event.button == 1 and self.ball and self.is_dragging:
             mouse_pos = pygame.mouse.get_pos()
@@ -37,6 +39,7 @@ class Slingshot:
             self.ball = None
             self.pressed_pos = None
 
+    # обновляет позицию мяча при натяжении
     def update(self):
         if self.is_dragging and self.ball:
             mouse_pos = pygame.mouse.get_pos()
@@ -48,12 +51,14 @@ class Slingshot:
                 dx = dx * max_distance / distance
                 dy = dy * max_distance / distance
             self.ball.body.position = (self.pressed_pos[0] + dx, self.pressed_pos[1] + dy)
-
+    
+    # отрисовывает линию натяжения рогатки
     def draw(self, screen):
         if self.is_dragging and self.pressed_pos and self.ball:
             mouse_pos = pygame.mouse.get_pos()
             pygame.draw.line(screen, (0, 0, 0), self.pressed_pos, mouse_pos, 2)
 
+    # сбрасывает состояние рогатки
     def reset(self):
         if self.ball:
             self.physics.space.remove(self.ball.body, self.ball)

@@ -11,6 +11,7 @@ class UIData:
     initial_velocity = 100
     angle = 45
 
+# создает интерфейс управления симуляцией
 def create_ui(physics):
     root = ctk.CTk()
     root.title("Настройки симуляции")
@@ -33,46 +34,55 @@ def create_ui(physics):
     velocity_var = ctk.DoubleVar(value=UIData.initial_velocity / 100)
     angle_var = ctk.DoubleVar(value=UIData.angle)
 
+    # обновляет значение гравитации
     def update_gravity(value):
         gravity = round(float(value), 2)
         physics.set_gravity(gravity)
         gravity_entry.delete(0, ctk.END)
         gravity_entry.insert(0, str(gravity))
 
+    # обновляет массу мяча
     def update_mass(value):
         UIData.mass = round(float(value), 2)
         mass_entry.delete(0, ctk.END)
         mass_entry.insert(0, str(UIData.mass))
 
+    # обновляет радиус мяча
     def update_radius(value):
         UIData.radius = round(float(value), 2)
         radius_entry.delete(0, ctk.END)
         radius_entry.insert(0, str(UIData.radius))
 
+    # обновляет упругость мяча
     def update_elasticity(value):
         UIData.elasticity = round(float(value), 2)
         elasticity_entry.delete(0, ctk.END)
         elasticity_entry.insert(0, str(UIData.elasticity))
 
+    # обновляет трение мяча
     def update_friction(value):
         UIData.friction = round(float(value), 2)
         friction_entry.delete(0, ctk.END)
         friction_entry.insert(0, str(UIData.friction))
 
+    # обновляет начальную скорость
     def update_velocity(value):
         velocity_mps = round(float(value), 2)
         UIData.initial_velocity = velocity_mps * 100
         velocity_entry.delete(0, ctk.END)
         velocity_entry.insert(0, str(velocity_mps))
 
+    # обновляет угол наклона
     def update_angle(value):
         UIData.angle = round(float(value), 2)
         angle_entry.delete(0, ctk.END)
         angle_entry.insert(0, str(UIData.angle))
 
+    # очищает поле симуляции
     def clear_objects():
         physics.clear_objects()
 
+    # переключает режим симуляции
     def toggle_mode():
         if UIData.mode == "normal":
             UIData.mode = "slingshot"
@@ -87,6 +97,7 @@ def create_ui(physics):
         physics.cannon.reset()
         clear_objects()
 
+    # переключает цветовой эффект
     def toggle_color_effect():
         UIData.color_effect = not UIData.color_effect
         color_effect_button.configure(text="Эффект: " + ("Вкл" if UIData.color_effect else "Выкл"))

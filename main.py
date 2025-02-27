@@ -8,7 +8,7 @@ from ui import create_ui, UIData
 def main():
     pygame.init()
     width, height = 1200, 800
-    screen_width = pygame.display.Info().current_w
+    screen_width = pygame.display.Info().current_w # Получение размеров экрана
     screen_height = pygame.display.Info().current_h
     total_width = width + 300
     x_position = (screen_width - total_width) // 2
@@ -18,6 +18,7 @@ def main():
     graphics = Graphics(width, height, "Гравитационная симуляция", (255, 255, 255))
     physics = PhysicsWorld(width, height)
 
+    # создание и запуск другого потока для UI
     ui_thread = threading.Thread(target=create_ui, args=(physics,), daemon=True)
     ui_thread.start()
 
@@ -26,6 +27,7 @@ def main():
     fps = 60
     dt = 1 / fps
 
+    # основной цикл событий
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

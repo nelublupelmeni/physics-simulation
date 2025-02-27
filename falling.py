@@ -2,7 +2,8 @@ import pymunk
 from slingshot import Slingshot
 from cannon import Cannon
 
-class PhysicsWorld:
+# отрисовка объектов на экране
+class PhysicsWorld: 
     def __init__(self, width, height):
         self.space = pymunk.Space()
         self.space.gravity = (0, 981)
@@ -28,6 +29,7 @@ class PhysicsWorld:
             shape.friction = 0.5
             self.space.add(body, shape)
 
+    # добавляет мяч с заданными параметрами
     def add_ball(self, radius, mass, pos, elasticity=0.9, friction=0.4):
         body = pymunk.Body()
         body.position = pos
@@ -40,6 +42,7 @@ class PhysicsWorld:
         self.space.add(body, shape)
         return shape
 
+    # обновляет физическую симуляцию
     def update(self, dt):
         self.space.step(dt)
         for body in self.space.bodies:
@@ -47,14 +50,17 @@ class PhysicsWorld:
                 if isinstance(shape, pymunk.Circle):
                     shape.hue = (shape.hue + 0.5) % 360
 
+    # очищает все динамические объекты
     def clear_objects(self):
         for body in self.space.bodies:
             if body.body_type == pymunk.Body.DYNAMIC:
                 self.space.remove(body, *body.shapes)
 
+    # задает силу гравитации
     def set_gravity(self, gravity):
         self.space.gravity = (0, gravity)
 
+    # возвращает список объектов в симуляции
     def get_objects(self):
         objects = []
         for body in self.space.bodies:

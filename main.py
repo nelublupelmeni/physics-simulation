@@ -1,7 +1,7 @@
 import pygame
 import threading
 import os
-from falling import PhysicsWorld
+from physics_world import PhysicsWorld
 from graphics import Graphics
 from ui import create_ui
 import config
@@ -32,17 +32,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if config.mode == "normal" and event.button == 1:
-                    x, y = event.pos
-                    if x < 1000:
-                        physics.add_ball(
-                            radius=config.radius,
-                            mass=config.mass,
-                            pos=(x, y),
-                            elasticity=config.elasticity,
-                            friction=config.friction,
-                        )
-                elif config.mode == "slingshot":
+                if config.mode == "slingshot":
                     physics.slingshot.handle_mouse_down(event)
                 elif config.mode == "cannon":
                     physics.cannon.handle_mouse_down(event)

@@ -64,15 +64,12 @@ def create_ui(physics):
         physics.clear_objects()
 
     def toggle_mode():
-        if config.mode == "normal":
-            config.mode = "slingshot"
-            mode_button.configure(text="Режим: Рогатка")
-        elif config.mode == "slingshot":
+        if config.mode == "slingshot":
             config.mode = "cannon"
             mode_button.configure(text="Режим: Пушка")
         else:
-            config.mode = "normal"
-            mode_button.configure(text="Режим: Обычный")
+            config.mode = "slingshot"
+            mode_button.configure(text="Режим: Рогатка")
         physics.slingshot.reset()
         physics.cannon.reset()
         clear_objects()
@@ -138,7 +135,7 @@ def create_ui(physics):
     angle_entry.bind("<Return>", lambda e: angle_var.set(round(float(angle_entry.get()), 2)))
 
     ctk.CTkButton(root, text="Очистить поле", command=clear_objects).grid(row=7, column=0, columnspan=3, padx=10, pady=20)
-    mode_button = ctk.CTkButton(root, text="Режим: Обычный", command=toggle_mode)
+    mode_button = ctk.CTkButton(root, text="Режим: Рогатка", command=toggle_mode)
     mode_button.grid(row=8, column=0, columnspan=3, padx=10, pady=20)
     color_effect_button = ctk.CTkButton(root, text="Эффект: Выкл", command=toggle_color_effect)
     color_effect_button.grid(row=9, column=0, columnspan=3, padx=10, pady=20)

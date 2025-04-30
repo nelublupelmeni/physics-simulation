@@ -1,12 +1,9 @@
-# config.py
-# Global configuration variables for the simulation
-
 mass = 10
 radius = 20
 elasticity = 0.9
 friction = 0.4
 gravity = 981
-mode = "normal"
+mode = "slingshot"
 color_effect = False
-initial_velocity = 100
+initial_velocity = 1000
 angle = 45

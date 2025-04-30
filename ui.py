@@ -1,15 +1,5 @@
 import customtkinter as ctk
-
-class UIData:
-    mass = 10
-    radius = 20
-    elasticity = 0.9
-    friction = 0.4
-    gravity = 981
-    mode = "normal"
-    color_effect = False
-    initial_velocity = 100
-    angle = 45
+import config
 
 def create_ui(physics):
     root = ctk.CTk()
@@ -25,13 +15,13 @@ def create_ui(physics):
     root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
     root.resizable(False, False)
 
-    mass_var = ctk.DoubleVar(value=UIData.mass)
-    radius_var = ctk.DoubleVar(value=UIData.radius)
-    elasticity_var = ctk.DoubleVar(value=UIData.elasticity)
-    friction_var = ctk.DoubleVar(value=UIData.friction)
-    gravity_var = ctk.DoubleVar(value=UIData.gravity)
-    velocity_var = ctk.DoubleVar(value=UIData.initial_velocity / 100)
-    angle_var = ctk.DoubleVar(value=UIData.angle)
+    mass_var = ctk.DoubleVar(value=config.mass)
+    radius_var = ctk.DoubleVar(value=config.radius)
+    elasticity_var = ctk.DoubleVar(value=config.elasticity)
+    friction_var = ctk.DoubleVar(value=config.friction)
+    gravity_var = ctk.DoubleVar(value=config.gravity)
+    velocity_var = ctk.DoubleVar(value=config.initial_velocity / 100)
+    angle_var = ctk.DoubleVar(value=config.angle)
 
     def update_gravity(value):
         gravity = round(float(value), 2)
@@ -40,56 +30,56 @@ def create_ui(physics):
         gravity_entry.insert(0, str(gravity))
 
     def update_mass(value):
-        UIData.mass = round(float(value), 2)
+        config.mass = round(float(value), 2)
         mass_entry.delete(0, ctk.END)
-        mass_entry.insert(0, str(UIData.mass))
+        mass_entry.insert(0, str(config.mass))
 
     def update_radius(value):
-        UIData.radius = round(float(value), 2)
+        config.radius = round(float(value), 2)
         radius_entry.delete(0, ctk.END)
-        radius_entry.insert(0, str(UIData.radius))
+        radius_entry.insert(0, str(config.radius))
 
     def update_elasticity(value):
-        UIData.elasticity = round(float(value), 2)
+        config.elasticity = round(float(value), 2)
         elasticity_entry.delete(0, ctk.END)
-        elasticity_entry.insert(0, str(UIData.elasticity))
+        elasticity_entry.insert(0, str(config.elasticity))
 
     def update_friction(value):
-        UIData.friction = round(float(value), 2)
+        config.friction = round(float(value), 2)
         friction_entry.delete(0, ctk.END)
-        friction_entry.insert(0, str(UIData.friction))
+        friction_entry.insert(0, str(config.friction))
 
     def update_velocity(value):
         velocity_mps = round(float(value), 2)
-        UIData.initial_velocity = velocity_mps * 100
+        config.initial_velocity = velocity_mps * 100
         velocity_entry.delete(0, ctk.END)
         velocity_entry.insert(0, str(velocity_mps))
 
     def update_angle(value):
-        UIData.angle = round(float(value), 2)
+        config.angle = round(float(value), 2)
         angle_entry.delete(0, ctk.END)
-        angle_entry.insert(0, str(UIData.angle))
+        angle_entry.insert(0, str(config.angle))
 
     def clear_objects():
         physics.clear_objects()
 
     def toggle_mode():
-        if UIData.mode == "normal":
-            UIData.mode = "slingshot"
+        if config.mode == "normal":
+            config.mode = "slingshot"
             mode_button.configure(text="Режим: Рогатка")
-        elif UIData.mode == "slingshot":
-            UIData.mode = "cannon"
+        elif config.mode == "slingshot":
+            config.mode = "cannon"
             mode_button.configure(text="Режим: Пушка")
         else:
-            UIData.mode = "normal"
+            config.mode = "normal"
             mode_button.configure(text="Режим: Обычный")
         physics.slingshot.reset()
         physics.cannon.reset()
         clear_objects()
 
     def toggle_color_effect():
-        UIData.color_effect = not UIData.color_effect
-        color_effect_button.configure(text="Эффект: " + ("Вкл" if UIData.color_effect else "Выкл"))
+        config.color_effect = not config.color_effect
+        color_effect_button.configure(text="Эффект: " + ("Вкл" if config.color_effect else "Выкл"))
 
     ctk.CTkLabel(root, text="Масса:").grid(row=0, column=0, padx=10, pady=10)
     mass_slider = ctk.CTkSlider(root, from_=1, to=100, variable=mass_var, command=update_mass)

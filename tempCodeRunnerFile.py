@@ -3,13 +3,12 @@ import threading
 import os
 from falling import PhysicsWorld
 from graphics import Graphics
-from ui import create_ui
-import config
+from ui import create_ui, UIData
 
 def main():
     pygame.init()
     width, height = 1200, 800
-    screen_width = pygame.display.Info().current_w
+    screen_width = pygame.display.Info().current_w # Получение размеров экрана
     screen_height = pygame.display.Info().current_h
     total_width = width + 300
     x_position = (screen_width - total_width) // 2
@@ -19,6 +18,7 @@ def main():
     graphics = Graphics(width, height, "Гравитационная симуляция", (255, 255, 255))
     physics = PhysicsWorld(width, height)
 
+    # создание и запуск другого потока для UI
     ui_thread = threading.Thread(target=create_ui, args=(physics,), daemon=True)
     ui_thread.start()
 
@@ -27,40 +27,41 @@ def main():
     fps = 60
     dt = 1 / fps
 
+    # основной цикл событий
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if config.mode == "normal" and event.button == 1:
+                if UIData.mode == "normal" and event.button == 1:
                     x, y = event.pos
                     if x < 1000:
                         physics.add_ball(
-                            radius=config.radius,
-                            mass=config.mass,
+                            radius=UIData.radius,
+                            mass=UIData.mass,
                             pos=(x, y),
-                            elasticity=config.elasticity,
-                            friction=config.friction,
+                            elasticity=UIData.elasticity,
+                            friction=UIData.friction,
                         )
-                elif config.mode == "slingshot":
+                elif UIData.mode == "slingshot":
                     physics.slingshot.handle_mouse_down(event)
-                elif config.mode == "cannon":
+                elif UIData.mode == "cannon":
                     physics.cannon.handle_mouse_down(event)
             elif event.type == pygame.MOUSEBUTTONUP:
-                if config.mode == "slingshot":
+                if UIData.mode == "slingshot":
                     physics.slingshot.handle_mouse_up(event)
-                elif config.mode == "cannon":
+                elif UIData.mode == "cannon":
                     physics.cannon.handle_mouse_up(event)
 
         physics.update(dt)
-        if config.mode == "cannon":
+        if UIData.mode == "cannon":
             physics.cannon.update()
 
         graphics.clear()
         graphics.draw_objects(physics.space)
-        if config.mode == "slingshot":
+        if UIData.mode == "slingshot":
             physics.slingshot.draw(graphics.screen)
-        elif config.mode == "cannon":
+        elif UIData.mode == "cannon":
             physics.cannon.draw(graphics.screen)
 
         graphics.update()

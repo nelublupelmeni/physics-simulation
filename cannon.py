@@ -1,7 +1,7 @@
 import pygame
 import math
 import pymunk
-from ui import UIData
+import config
 
 class Cannon:
     def __init__(self, physics):
@@ -42,11 +42,11 @@ class Cannon:
 
     def create_ball(self):
         ball = self.physics.add_ball(
-            radius=UIData.radius,
-            mass=UIData.mass,
+            radius=config.radius,
+            mass=config.mass,
             pos=(self.x + 30, self.y - 20),
-            elasticity=UIData.elasticity,
-            friction=UIData.friction,
+            elasticity=config.elasticity,
+            friction=config.friction,
         )
         ball.body.body_type = pymunk.Body.KINEMATIC
         return ball
@@ -54,9 +54,9 @@ class Cannon:
     def handle_mouse_up(self, event):
         if event.button == 1 and self.ball:
             self.ball.body.body_type = pymunk.Body.DYNAMIC
-            angle_rad = math.radians(UIData.angle)
-            velocity_x = UIData.initial_velocity * math.cos(angle_rad)
-            velocity_y = -UIData.initial_velocity * math.sin(angle_rad)
+            angle_rad = math.radians(config.angle)
+            velocity_x = config.initial_velocity * math.cos(angle_rad)
+            velocity_y = -config.initial_velocity * math.sin(angle_rad)
             self.ball.body.velocity = (velocity_x, velocity_y)
             self.fired = True
             self.start_time = pygame.time.get_ticks()
@@ -92,8 +92,8 @@ class Cannon:
             screen.blit(label, (origin_x - 40, origin_y - y - 10))
 
         pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y - 20, 60, 20))
-        end_x = self.x + 30 + 60 * math.cos(math.radians(UIData.angle))
-        end_y = self.y - 20 - 60 * math.sin(math.radians(UIData.angle))
+        end_x = self.x + 30 + 60 * math.cos(math.radians(config.angle))
+        end_y = self.y - 20 - 60 * math.sin(math.radians(config.angle))
         pygame.draw.line(screen, (150, 150, 150), (self.x + 30, self.y - 20), (end_x, end_y), 3)
 
         for point in self.trajectory_points:

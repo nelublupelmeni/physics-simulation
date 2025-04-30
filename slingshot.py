@@ -1,7 +1,7 @@
 import math
 import pygame
 import pymunk
-from ui import UIData
+import config
 
 class Slingshot:
     def __init__(self, physics):
@@ -15,11 +15,11 @@ class Slingshot:
             if not self.ball:
                 self.pressed_pos = pygame.mouse.get_pos()
                 self.ball = self.physics.add_ball(
-                    radius=UIData.radius,
-                    mass=UIData.mass,
+                    radius=config.radius,
+                    mass=config.mass,
                     pos=self.pressed_pos,
-                    elasticity=UIData.elasticity,
-                    friction=UIData.friction,
+                    elasticity=config.elasticity,
+                    friction=config.friction,
                 )
                 self.ball.body.body_type = pymunk.Body.STATIC
                 self.is_dragging = True

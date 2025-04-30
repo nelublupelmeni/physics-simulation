@@ -1,7 +1,7 @@
 import pygame
 import pymunk
 import pymunk.pygame_util
-from ui import UIData
+import config
 
 class Graphics:
     def __init__(self, width, height, title, bg_color):
@@ -17,7 +17,7 @@ class Graphics:
         self.screen.fill(self.bg_color)
 
     def draw_objects(self, space):
-        if UIData.color_effect:
+        if config.color_effect:
             for body in space.bodies:
                 for shape in body.shapes:
                     if isinstance(shape, pymunk.Circle):

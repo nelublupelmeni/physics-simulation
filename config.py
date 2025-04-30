@@ -1,9 +1,10 @@
+mode = "slingshot"
 mass = 10
 radius = 20
 elasticity = 0.9
 friction = 0.4
 gravity = 981
-mode = "slingshot"
-color_effect = False
-initial_velocity = 1000
+initial_velocity = 500
 angle = 45
+color_effect = False
+air_resistance = 0.5

@@ -35,37 +35,74 @@ class Cannon:
     def handle_mouse_down(self, event):
         if event.button == 1:
             if self.ball:
-                self.physics.space.remove(self.ball.body, self.ball)
+                try:
+                    self.physics.space.remove(self.ball.body, self.ball)
+                except Exception as e:
+                    print(f"Error removing ball: {e}")
                 self.ball = None
             self.trajectory_points = []
             self.ball = self.create_ball()
 
     def create_ball(self):
-        ball = self.physics.add_ball(
-            radius=config.radius,
-            mass=config.mass,
-            pos=(self.x + 30, self.y - 20),
-            elasticity=config.elasticity,
-            friction=config.friction,
-        )
-        ball.body.body_type = pymunk.Body.KINEMATIC
-        return ball
+        try:
+            ball = self.physics.add_ball(
+                radius=config.radius,
+                mass=config.mass,
+                pos=(self.x + 30, self.y - 20),
+                elasticity=config.elasticity,
+                friction=config.friction,
+            )
+            ball.body.body_type = pymunk.Body.KINEMATIC
+            return ball
+        except Exception as e:
+            print(f"Error creating ball: {e}")
+            return None
 
     def handle_mouse_up(self, event):
         if event.button == 1 and self.ball:
-            self.ball.body.body_type = pymunk.Body.DYNAMIC
-            angle_rad = math.radians(config.angle)
-            velocity_x = config.initial_velocity * math.cos(angle_rad)
-            velocity_y = -config.initial_velocity * math.sin(angle_rad)
-            self.ball.body.velocity = (velocity_x, velocity_y)
-            self.fired = True
-            self.start_time = pygame.time.get_ticks()
-            self.end_time = 0
+            try:
+                self.ball.body.body_type = pymunk.Body.DYNAMIC
+                angle_rad = math.radians(config.angle)
+                velocity_x = config.initial_velocity * math.cos(angle_rad)
+                velocity_y = -config.initial_velocity * math.sin(angle_rad)
+                self.ball.body.velocity = (velocity_x, velocity_y)
+                self.fired = True
+                self.start_time = pygame.time.get_ticks()
+                self.end_time = 0
+            except Exception as e:
+                print(f"Error in handle_mouse_up: {e}")
 
     def update(self):
-        if self.fired and self.ball:
-            x, y = self.ball.body.position
-            self.trajectory_points.append((x, y))
+        if self.fired and self.ball and self.ball.body:
+            try:
+                x, y = self.ball.body.position
+                # Check for valid position
+                if not (isinstance(x, (int, float)) and isinstance(y, (int, float)) and math.isfinite(x) and math.isfinite(y)):
+                    self.fired = False
+                    self.ball = None
+                    return
+                self.trajectory_points.append((x, y))
+                # Apply air resistance force (quadratic model)
+                velocity = self.ball.body.velocity
+                speed = math.sqrt(velocity[0]**2 + velocity[1]**2)
+                if speed > 0:
+                    rho = 1.225  # Air density (kg/m^3)
+                    C_d = 0.47   # Drag coefficient for a sphere
+                    radius_m = config.radius / 100  # Convert radius to meters
+                    A = math.pi * radius_m**2  # Cross-sectional area (m^2)
+                    k = 0.5 * rho * C_d * A * config.air_resistance
+                    drag_force = (-k * speed * velocity[0], -k * speed * velocity[1])
+                    # Limit drag force to prevent instability
+                    max_force = 10000
+                    drag_magnitude = math.sqrt(drag_force[0]**2 + drag_force[1]**2)
+                    if drag_magnitude > max_force:
+                        scale = max_force / drag_magnitude
+                        drag_force = (drag_force[0] * scale, drag_force[1] * scale)
+                    self.ball.body.apply_force_at_local_point(drag_force, (0, 0))
+            except Exception as e:
+                print(f"Error in update: {e}")
+                self.fired = False
+                self.ball = None
 
     def draw(self, screen):
         if self.font is None:
@@ -97,7 +134,13 @@ class Cannon:
         pygame.draw.line(screen, (150, 150, 150), (self.x + 30, self.y - 20), (end_x, end_y), 3)
 
         for point in self.trajectory_points:
-            pygame.draw.circle(screen, (200, 50, 50), (int(point[0]), int(point[1])), 2)
+            try:
+                if (isinstance(point, tuple) and len(point) == 2 and
+                    isinstance(point[0], (int, float)) and isinstance(point[1], (int, float)) and
+                    math.isfinite(point[0]) and math.isfinite(point[1])):
+                    pygame.draw.circle(screen, (200, 50, 50), (int(point[0]), int(point[1])), 2)
+            except Exception as e:
+                print(f"Error drawing trajectory point {point}: {e}")
 
         if self.fired or self.end_time > 0:
             current_time = pygame.time.get_ticks()
@@ -108,7 +151,10 @@ class Cannon:
 
     def reset(self):
         if self.ball:
-            self.physics.space.remove(self.ball.body, self.ball)
+            try:
+                self.physics.space.remove(self.ball.body, self.ball)
+            except Exception as e:
+                print(f"Error in reset: {e}")
             self.ball = None
         self.trajectory_points = []
         self.fired = False

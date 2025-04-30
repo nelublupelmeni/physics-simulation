@@ -1,143 +1,183 @@
 import customtkinter as ctk
 import config
 
-def create_ui(physics):
-    root = ctk.CTk()
-    root.title("Настройки симуляции")
-    window_width = 500
-    window_height = 650
-    pygame_width = 1200
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    total_width = pygame_width + window_width
-    x_position = (screen_width - total_width) // 2 + pygame_width
-    y_position = (screen_height - window_height) // 2
-    root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-    root.resizable(False, False)
+class SimulationUI:
+    def __init__(self, physics, running_event):
+        self.physics = physics
+        self.running_event = running_event
+        self.root = ctk.CTk()
+        self.root.title("Настройки симуляции")
+        self._setup_window_geometry()
+        self.root.resizable(False, False)
 
-    mass_var = ctk.DoubleVar(value=config.mass)
-    radius_var = ctk.DoubleVar(value=config.radius)
-    elasticity_var = ctk.DoubleVar(value=config.elasticity)
-    friction_var = ctk.DoubleVar(value=config.friction)
-    gravity_var = ctk.DoubleVar(value=config.gravity)
-    velocity_var = ctk.DoubleVar(value=config.initial_velocity / 100)
-    angle_var = ctk.DoubleVar(value=config.angle)
+        self.mass_var = ctk.DoubleVar(value=config.mass)
+        self.radius_var = ctk.DoubleVar(value=config.radius)
+        self.elasticity_var = ctk.DoubleVar(value=config.elasticity)
+        self.friction_var = ctk.DoubleVar(value=config.friction)
+        self.gravity_var = ctk.DoubleVar(value=config.gravity)
+        self.velocity_var = ctk.DoubleVar(value=config.initial_velocity / 100)
+        self.angle_var = ctk.DoubleVar(value=config.angle)
+        self.air_resistance_var = ctk.DoubleVar(value=config.air_resistance)
 
-    def update_gravity(value):
+        self._create_widgets()
+        self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
+
+    def _setup_window_geometry(self):
+        window_width = 500
+        window_height = 700
+        pygame_width = 1200
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        total_width = pygame_width + window_width
+        x_position = (screen_width - total_width) // 2 + pygame_width
+        y_position = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+    def _create_widgets(self):
+        # Mass
+        ctk.CTkLabel(self.root, text="Масса:").grid(row=0, column=0, padx=10, pady=10)
+        self.mass_slider = ctk.CTkSlider(self.root, from_=1, to=100, variable=self.mass_var, command=self.update_mass)
+        self.mass_slider.grid(row=0, column=1, padx=10, pady=10)
+        self.mass_entry = ctk.CTkEntry(self.root, width=80)
+        self.mass_entry.insert(0, str(self.mass_var.get()))
+        self.mass_entry.grid(row=0, column=2, padx=10, pady=10)
+        self.mass_entry.bind("<Return>", lambda e: self.mass_var.set(round(float(self.mass_entry.get()), 2)))
+
+        # Radius
+        ctk.CTkLabel(self.root, text="Радиус:").grid(row=1, column=0, padx=10, pady=10)
+        self.radius_slider = ctk.CTkSlider(self.root, from_=10, to=100, variable=self.radius_var, command=self.update_radius)
+        self.radius_slider.grid(row=1, column=1, padx=10, pady=10)
+        self.radius_entry = ctk.CTkEntry(self.root, width=80)
+        self.radius_entry.insert(0, str(self.radius_var.get()))
+        self.radius_entry.grid(row=1, column=2, padx=10, pady=10)
+        self.radius_entry.bind("<Return>", lambda e: self.radius_var.set(round(float(self.radius_entry.get()), 2)))
+
+        # Elasticity
+        ctk.CTkLabel(self.root, text="Упругость:").grid(row=2, column=0, padx=10, pady=10)
+        self.elasticity_slider = ctk.CTkSlider(self.root, from_=0, to=1, variable=self.elasticity_var, command=self.update_elasticity)
+        self.elasticity_slider.grid(row=2, column=1, padx=10, pady=10)
+        self.elasticity_entry = ctk.CTkEntry(self.root, width=80)
+        self.elasticity_entry.insert(0, str(self.elasticity_var.get()))
+        self.elasticity_entry.grid(row=2, column=2, padx=10, pady=10)
+        self.elasticity_entry.bind("<Return>", lambda e: self.elasticity_var.set(round(float(self.elasticity_entry.get()), 2)))
+
+        # Friction
+        ctk.CTkLabel(self.root, text="Трение:").grid(row=3, column=0, padx=10, pady=10)
+        self.friction_slider = ctk.CTkSlider(self.root, from_=0, to=1, variable=self.friction_var, command=self.update_friction)
+        self.friction_slider.grid(row=3, column=1, padx=10, pady=10)
+        self.friction_entry = ctk.CTkEntry(self.root, width=80)
+        self.friction_entry.insert(0, str(self.friction_var.get()))
+        self.friction_entry.grid(row=3, column=2, padx=10, pady=10)
+        self.friction_entry.bind("<Return>", lambda e: self.friction_var.set(round(float(self.friction_entry.get()), 2)))
+
+        # Gravity
+        ctk.CTkLabel(self.root, text="Гравитация:").grid(row=4, column=0, padx=10, pady=10)
+        self.gravity_slider = ctk.CTkSlider(self.root, from_=0, to=2000, variable=self.gravity_var, command=self.update_gravity)
+        self.gravity_slider.grid(row=4, column=1, padx=10, pady=10)
+        self.gravity_entry = ctk.CTkEntry(self.root, width=80)
+        self.gravity_entry.insert(0, str(self.gravity_var.get()))
+        self.gravity_entry.grid(row=4, column=2, padx=10, pady=10)
+        self.gravity_entry.bind("<Return>", lambda e: self.gravity_var.set(round(float(self.gravity_entry.get()), 2)))
+
+        # Velocity
+        ctk.CTkLabel(self.root, text="Скорость (м/с):").grid(row=5, column=0, padx=10, pady=10)
+        self.velocity_slider = ctk.CTkSlider(self.root, from_=0, to=15, variable=self.velocity_var, command=self.update_velocity)
+        self.velocity_slider.grid(row=5, column=1, padx=10, pady=10)
+        self.velocity_entry = ctk.CTkEntry(self.root, width=80)
+        self.velocity_entry.insert(0, str(self.velocity_var.get()))
+        self.velocity_entry.grid(row=5, column=2, padx=10, pady=10)
+        self.velocity_entry.bind("<Return>", lambda e: self.velocity_var.set(round(float(self.velocity_entry.get()), 2)))
+
+        # Angle
+        ctk.CTkLabel(self.root, text="Угол наклона:").grid(row=6, column=0, padx=10, pady=10)
+        self.angle_slider = ctk.CTkSlider(self.root, from_=0, to=90, variable=self.angle_var, command=self.update_angle)
+        self.angle_slider.grid(row=6, column=1, padx=10, pady=10)
+        self.angle_entry = ctk.CTkEntry(self.root, width=80)
+        self.angle_entry.insert(0, str(self.angle_var.get()))
+        self.angle_entry.grid(row=6, column=2, padx=10, pady=10)
+        self.angle_entry.bind("<Return>", lambda e: self.angle_var.set(round(float(self.angle_entry.get()), 2)))
+
+        # Air Resistance
+        ctk.CTkLabel(self.root, text="Сопротивление воздуха:").grid(row=7, column=0, padx=10, pady=10)
+        self.air_resistance_slider = ctk.CTkSlider(self.root, from_=0, to=50, variable=self.air_resistance_var, command=self.update_air_resistance)
+        self.air_resistance_slider.grid(row=7, column=1, padx=10, pady=10)
+        self.air_resistance_entry = ctk.CTkEntry(self.root, width=80)
+        self.air_resistance_entry.insert(0, str(self.air_resistance_var.get()))
+        self.air_resistance_entry.grid(row=7, column=2, padx=10, pady=10)
+        self.air_resistance_entry.bind("<Return>", lambda e: self.air_resistance_var.set(round(float(self.air_resistance_entry.get()), 2)))
+
+        # Buttons
+        self.clear_button = ctk.CTkButton(self.root, text="Очистить поле", command=self.clear_objects)
+        self.clear_button.grid(row=8, column=0, columnspan=3, padx=10, pady=20)
+        self.mode_button = ctk.CTkButton(self.root, text="Режим: Рогатка", command=self.toggle_mode)
+        self.mode_button.grid(row=9, column=0, columnspan=3, padx=10, pady=20)
+        self.color_effect_button = ctk.CTkButton(self.root, text="Эффект: Выкл", command=self.toggle_color_effect)
+        self.color_effect_button.grid(row=10, column=0, columnspan=3, padx=10, pady=20)
+
+    def update_gravity(self, value):
         gravity = round(float(value), 2)
-        physics.set_gravity(gravity)
-        gravity_entry.delete(0, ctk.END)
-        gravity_entry.insert(0, str(gravity))
+        self.physics.set_gravity(gravity)
+        self.gravity_entry.delete(0, ctk.END)
+        self.gravity_entry.insert(0, str(gravity))
 
-    def update_mass(value):
+    def update_mass(self, value):
         config.mass = round(float(value), 2)
-        mass_entry.delete(0, ctk.END)
-        mass_entry.insert(0, str(config.mass))
+        self.mass_entry.delete(0, ctk.END)
+        self.mass_entry.insert(0, str(config.mass))
 
-    def update_radius(value):
+    def update_radius(self, value):
         config.radius = round(float(value), 2)
-        radius_entry.delete(0, ctk.END)
-        radius_entry.insert(0, str(config.radius))
+        self.radius_entry.delete(0, ctk.END)
+        self.radius_entry.insert(0, str(config.radius))
 
-    def update_elasticity(value):
+    def update_elasticity(self, value):
         config.elasticity = round(float(value), 2)
-        elasticity_entry.delete(0, ctk.END)
-        elasticity_entry.insert(0, str(config.elasticity))
+        self.elasticity_entry.delete(0, ctk.END)
+        self.elasticity_entry.insert(0, str(config.elasticity))
 
-    def update_friction(value):
+    def update_friction(self, value):
         config.friction = round(float(value), 2)
-        friction_entry.delete(0, ctk.END)
-        friction_entry.insert(0, str(config.friction))
+        self.friction_entry.delete(0, ctk.END)
+        self.friction_entry.insert(0, str(config.friction))
 
-    def update_velocity(value):
+    def update_velocity(self, value):
         velocity_mps = round(float(value), 2)
         config.initial_velocity = velocity_mps * 100
-        velocity_entry.delete(0, ctk.END)
-        velocity_entry.insert(0, str(velocity_mps))
+        self.velocity_entry.delete(0, ctk.END)
+        self.velocity_entry.insert(0, str(velocity_mps))
 
-    def update_angle(value):
+    def update_angle(self, value):
         config.angle = round(float(value), 2)
-        angle_entry.delete(0, ctk.END)
-        angle_entry.insert(0, str(config.angle))
+        self.angle_entry.delete(0, ctk.END)
+        self.angle_entry.insert(0, str(config.angle))
 
-    def clear_objects():
-        physics.clear_objects()
+    def update_air_resistance(self, value):
+        config.air_resistance = round(float(value), 2)
+        self.air_resistance_entry.delete(0, ctk.END)
+        self.air_resistance_entry.insert(0, str(config.air_resistance))
 
-    def toggle_mode():
+    def clear_objects(self):
+        self.physics.clear_objects()
+
+    def toggle_mode(self):
         if config.mode == "slingshot":
             config.mode = "cannon"
-            mode_button.configure(text="Режим: Пушка")
+            self.mode_button.configure(text="Режим: Пушка")
         else:
             config.mode = "slingshot"
-            mode_button.configure(text="Режим: Рогатка")
-        physics.slingshot.reset()
-        physics.cannon.reset()
-        clear_objects()
+            self.mode_button.configure(text="Режим: Рогатка")
+        self.physics.slingshot.reset()
+        self.physics.cannon.reset()
+        self.clear_objects()
 
-    def toggle_color_effect():
+    def toggle_color_effect(self):
         config.color_effect = not config.color_effect
-        color_effect_button.configure(text="Эффект: " + ("Вкл" if config.color_effect else "Выкл"))
+        self.color_effect_button.configure(text="Эффект: " + ("Вкл" if config.color_effect else "Выкл"))
 
-    ctk.CTkLabel(root, text="Масса:").grid(row=0, column=0, padx=10, pady=10)
-    mass_slider = ctk.CTkSlider(root, from_=1, to=100, variable=mass_var, command=update_mass)
-    mass_slider.grid(row=0, column=1, padx=10, pady=10)
-    mass_entry = ctk.CTkEntry(root, width=80)
-    mass_entry.insert(0, str(mass_var.get()))
-    mass_entry.grid(row=0, column=2, padx=10, pady=10)
-    mass_entry.bind("<Return>", lambda e: mass_var.set(round(float(mass_entry.get()), 2)))
+    def _on_closing(self):
+        self.running_event.clear()
+        self.root.quit()
+        self.root.destroy()
 
-    ctk.CTkLabel(root, text="Радиус:").grid(row=1, column=0, padx=10, pady=10)
-    radius_slider = ctk.CTkSlider(root, from_=10, to=100, variable=radius_var, command=update_radius)
-    radius_slider.grid(row=1, column=1, padx=10, pady=10)
-    radius_entry = ctk.CTkEntry(root, width=80)
-    radius_entry.insert(0, str(radius_var.get()))
-    radius_entry.grid(row=1, column=2, padx=10, pady=10)
-    radius_entry.bind("<Return>", lambda e: radius_var.set(round(float(radius_entry.get()), 2)))
-
-    ctk.CTkLabel(root, text="Упругость:").grid(row=2, column=0, padx=10, pady=10)
-    elasticity_slider = ctk.CTkSlider(root, from_=0, to=1, variable=elasticity_var, command=update_elasticity)
-    elasticity_slider.grid(row=2, column=1, padx=10, pady=10)
-    elasticity_entry = ctk.CTkEntry(root, width=80)
-    elasticity_entry.insert(0, str(elasticity_var.get()))
-    elasticity_entry.grid(row=2, column=2, padx=10, pady=10)
-    elasticity_entry.bind("<Return>", lambda e: elasticity_var.set(round(float(elasticity_entry.get()), 2)))
-
-    ctk.CTkLabel(root, text="Трение:").grid(row=3, column=0, padx=10, pady=10)
-    friction_slider = ctk.CTkSlider(root, from_=0, to=1, variable=friction_var, command=update_friction)
-    friction_slider.grid(row=3, column=1, padx=10, pady=10)
-    friction_entry = ctk.CTkEntry(root, width=80)
-    friction_entry.insert(0, str(friction_var.get()))
-    friction_entry.grid(row=3, column=2, padx=10, pady=10)
-    friction_entry.bind("<Return>", lambda e: friction_var.set(round(float(friction_entry.get()), 2)))
-
-    ctk.CTkLabel(root, text="Гравитация:").grid(row=4, column=0, padx=10, pady=10)
-    gravity_slider = ctk.CTkSlider(root, from_=0, to=2000, variable=gravity_var, command=update_gravity)
-    gravity_slider.grid(row=4, column=1, padx=10, pady=10)
-    gravity_entry = ctk.CTkEntry(root, width=80)
-    gravity_entry.insert(0, str(gravity_var.get()))
-    gravity_entry.grid(row=4, column=2, padx=10, pady=10)
-    gravity_entry.bind("<Return>", lambda e: gravity_var.set(round(float(gravity_entry.get()), 2)))
-
-    ctk.CTkLabel(root, text="Скорость (м/с):").grid(row=5, column=0, padx=10, pady=10)
-    velocity_slider = ctk.CTkSlider(root, from_=0, to=30, variable=velocity_var, command=update_velocity)
-    velocity_slider.grid(row=5, column=1, padx=10, pady=10)
-    velocity_entry = ctk.CTkEntry(root, width=80)
-    velocity_entry.insert(0, str(velocity_var.get()))
-    velocity_entry.grid(row=5, column=2, padx=10, pady=10)
-    velocity_entry.bind("<Return>", lambda e: velocity_var.set(round(float(velocity_entry.get()), 2)))
-
-    ctk.CTkLabel(root, text="Угол наклона:").grid(row=6, column=0, padx=10, pady=10)
-    angle_slider = ctk.CTkSlider(root, from_=0, to=90, variable=angle_var, command=update_angle)
-    angle_slider.grid(row=6, column=1, padx=10, pady=10)
-    angle_entry = ctk.CTkEntry(root, width=80)
-    angle_entry.insert(0, str(angle_var.get()))
-    angle_entry.grid(row=6, column=2, padx=10, pady=10)
-    angle_entry.bind("<Return>", lambda e: angle_var.set(round(float(angle_entry.get()), 2)))
-
-    ctk.CTkButton(root, text="Очистить поле", command=clear_objects).grid(row=7, column=0, columnspan=3, padx=10, pady=20)
-    mode_button = ctk.CTkButton(root, text="Режим: Рогатка", command=toggle_mode)
-    mode_button.grid(row=8, column=0, columnspan=3, padx=10, pady=20)
-    color_effect_button = ctk.CTkButton(root, text="Эффект: Выкл", command=toggle_color_effect)
-    color_effect_button.grid(row=9, column=0, columnspan=3, padx=10, pady=20)
-
-    root.mainloop()
+    def run(self):
+        self.root.mainloop()

@@ -2,14 +2,23 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 import config
+import os
 
 class Graphics:
     def __init__(self, width, height, title, bg_color):
         self.width = width
         self.height = height
         self.bg_color = bg_color
-        self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption(title)
+        # Set window position
+        screen_width = pygame.display.Info().current_w
+        screen_height = pygame.display.Info().current_h
+        total_width = width + 300
+        x_position = (screen_width - total_width) // 2
+        y_position = (screen_height - height) // 2
+        os.environ['SDL_VIDEO_WINDOW_POS'] = f"{x_position},{y_position}"
+        # Initialize display without title bar
+        self.screen = pygame.display.set_mode((width, height), pygame.NOFRAME)
+        pygame.display.set_caption(title)  # Caption is set but not visible due to NOFRAME
         self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
         pymunk.pygame_util.positive_y_is_up = False
 

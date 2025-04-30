@@ -1,7 +1,5 @@
 import pygame
 import threading
-import os
-import pymunk
 from slingshot import Slingshot
 from cannon import Cannon
 from graphics import Graphics
@@ -48,13 +46,6 @@ def run_simulation(graphics, physics, running_event):
 def main():
     pygame.init()
     width, height = 1200, 800
-    screen_width = pygame.display.Info().current_w
-    screen_height = pygame.display.Info().current_h
-    total_width = width + 300
-    x_position = (screen_width - total_width) // 2
-    y_position = (screen_height - height) // 2
-    os.environ['SDL_VIDEO_WINDOW_POS'] = f"{x_position},{y_position}"
-
     graphics = Graphics(width, height, "Гравитационная симуляция", (255, 255, 255))
     physics = PhysicsWorld(width, height)
 

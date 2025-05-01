@@ -24,7 +24,7 @@ class SimulationUI:
 
     def _setup_window_geometry(self):
         window_width = 500
-        window_height = 500  # Adjusted to fit content more compactly
+        window_height = 600  # Adjusted to fit content more compactly
         pygame_width = 1200
         pygame_height = 800
         screen_width = self.root.winfo_screenwidth()

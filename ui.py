@@ -38,76 +38,109 @@ class SimulationUI:
         self.root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
     def _create_widgets(self):
-        ctk.CTkLabel(self.root, text="Масса:").grid(row=0, column=0, padx=10, pady=5)
-        self.mass_slider = ctk.CTkSlider(self.root, from_=1, to=100, variable=self.mass_var, command=self.update_mass)
-        self.mass_slider.grid(row=0, column=1, padx=10, pady=5)
-        self.mass_entry = ctk.CTkEntry(self.root, width=80)
+        # Mass row
+        mass_frame = ctk.CTkFrame(self.root)
+        mass_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(mass_frame, text="Масса:", width=150, anchor="w").pack(side="left", padx=5)
+        self.mass_slider = ctk.CTkSlider(mass_frame, from_=1, to=100, variable=self.mass_var, command=self.update_mass, width=200)
+        self.mass_slider.pack(side="left", padx=5)
+        self.mass_entry = ctk.CTkEntry(mass_frame, width=80)
         self.mass_entry.insert(0, str(self.mass_var.get()))
-        self.mass_entry.grid(row=0, column=2, padx=10, pady=5)
+        self.mass_entry.pack(side="left", padx=5)
         self.mass_entry.bind("<Return>", lambda e: self.mass_var.set(round(float(self.mass_entry.get()), 2)))
 
-        ctk.CTkLabel(self.root, text="Радиус:").grid(row=1, column=0, padx=10, pady=5)
-        self.radius_slider = ctk.CTkSlider(self.root, from_=10, to=100, variable=self.radius_var, command=self.update_radius)
-        self.radius_slider.grid(row=1, column=1, padx=10, pady=5)
-        self.radius_entry = ctk.CTkEntry(self.root, width=80)
+        # Radius row
+        radius_frame = ctk.CTkFrame(self.root)
+        radius_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(radius_frame, text="Радиус:", width=150, anchor="w").pack(side="left", padx=5)
+        self.radius_slider = ctk.CTkSlider(radius_frame, from_=10, to=100, variable=self.radius_var, command=self.update_radius, width=200)
+        self.radius_slider.pack(side="left", padx=5)
+        self.radius_entry = ctk.CTkEntry(radius_frame, width=80)
         self.radius_entry.insert(0, str(self.radius_var.get()))
-        self.radius_entry.grid(row=1, column=2, padx=10, pady=5)
+        self.radius_entry.pack(side="left", padx=5)
         self.radius_entry.bind("<Return>", lambda e: self.radius_var.set(round(float(self.radius_entry.get()), 2)))
 
-        ctk.CTkLabel(self.root, text="Упругость:").grid(row=2, column=0, padx=10, pady=5)
-        self.elasticity_slider = ctk.CTkSlider(self.root, from_=0, to=1, variable=self.elasticity_var, command=self.update_elasticity)
-        self.elasticity_slider.grid(row=2, column=1, padx=10, pady=5)
-        self.elasticity_entry = ctk.CTkEntry(self.root, width=80)
+        # Elasticity row
+        elasticity_frame = ctk.CTkFrame(self.root)
+        elasticity_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(elasticity_frame, text="Упругость:", width=150, anchor="w").pack(side="left", padx=5)
+        self.elasticity_slider = ctk.CTkSlider(elasticity_frame, from_=0, to=1, variable=self.elasticity_var, command=self.update_elasticity, width=200)
+        self.elasticity_slider.pack(side="left", padx=5)
+        self.elasticity_entry = ctk.CTkEntry(elasticity_frame, width=80)
         self.elasticity_entry.insert(0, str(self.elasticity_var.get()))
-        self.elasticity_entry.grid(row=2, column=2, padx=10, pady=5)
+        self.elasticity_entry.pack(side="left", padx=5)
         self.elasticity_entry.bind("<Return>", lambda e: self.elasticity_var.set(round(float(self.elasticity_entry.get()), 2)))
 
-        ctk.CTkLabel(self.root, text="Трение:").grid(row=3, column=0, padx=10, pady=5)
-        self.friction_slider = ctk.CTkSlider(self.root, from_=0, to=1, variable=self.friction_var, command=self.update_friction)
-        self.friction_slider.grid(row=3, column=1, padx=10, pady=5)
-        self.friction_entry = ctk.CTkEntry(self.root, width=80)
+        # Friction row
+        friction_frame = ctk.CTkFrame(self.root)
+        friction_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(friction_frame, text="Трение:", width=150, anchor="w").pack(side="left", padx=5)
+        self.friction_slider = ctk.CTkSlider(friction_frame, from_=0, to=1, variable=self.friction_var, command=self.update_friction, width=200)
+        self.friction_slider.pack(side="left", padx=5)
+        self.friction_entry = ctk.CTkEntry(friction_frame, width=80)
         self.friction_entry.insert(0, str(self.friction_var.get()))
-        self.friction_entry.grid(row=3, column=2, padx=10, pady=5)
+        self.friction_entry.pack(side="left", padx=5)
         self.friction_entry.bind("<Return>", lambda e: self.friction_var.set(round(float(self.friction_entry.get()), 2)))
 
-        ctk.CTkLabel(self.root, text="Гравитация:").grid(row=4, column=0, padx=10, pady=5)
-        self.gravity_slider = ctk.CTkSlider(self.root, from_=0, to=2000, variable=self.gravity_var, command=self.update_gravity)
-        self.gravity_slider.grid(row=4, column=1, padx=10, pady=5)
-        self.gravity_entry = ctk.CTkEntry(self.root, width=80)
+        # Gravity row
+        gravity_frame = ctk.CTkFrame(self.root)
+        gravity_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(gravity_frame, text="Гравитация:", width=150, anchor="w").pack(side="left", padx=5)
+        self.gravity_slider = ctk.CTkSlider(gravity_frame, from_=0, to=2000, variable=self.gravity_var, command=self.update_gravity, width=200)
+        self.gravity_slider.pack(side="left", padx=5)
+        self.gravity_entry = ctk.CTkEntry(gravity_frame, width=80)
         self.gravity_entry.insert(0, str(self.gravity_var.get()))
-        self.gravity_entry.grid(row=4, column=2, padx=10, pady=5)
+        self.gravity_entry.pack(side="left", padx=5)
         self.gravity_entry.bind("<Return>", lambda e: self.gravity_var.set(round(float(self.gravity_entry.get()), 2)))
 
-        ctk.CTkLabel(self.root, text="Скорость (м/с):").grid(row=5, column=0, padx=10, pady=5)
-        self.velocity_slider = ctk.CTkSlider(self.root, from_=0, to=15, variable=self.velocity_var, command=self.update_velocity)
-        self.velocity_slider.grid(row=5, column=1, padx=10, pady=5)
-        self.velocity_entry = ctk.CTkEntry(self.root, width=80)
+        # Velocity row
+        velocity_frame = ctk.CTkFrame(self.root)
+        velocity_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(velocity_frame, text="Скорость (м/с):", width=150, anchor="w").pack(side="left", padx=5)
+        self.velocity_slider = ctk.CTkSlider(velocity_frame, from_=0, to=15, variable=self.velocity_var, command=self.update_velocity, width=200)
+        self.velocity_slider.pack(side="left", padx=5)
+        self.velocity_entry = ctk.CTkEntry(velocity_frame, width=80)
         self.velocity_entry.insert(0, str(self.velocity_var.get()))
-        self.velocity_entry.grid(row=5, column=2, padx=10, pady=5)
+        self.velocity_entry.pack(side="left", padx=5)
         self.velocity_entry.bind("<Return>", lambda e: self.velocity_var.set(round(float(self.velocity_entry.get()), 2)))
 
-        ctk.CTkLabel(self.root, text="Угол наклона:").grid(row=6, column=0, padx=10, pady=5)
-        self.angle_slider = ctk.CTkSlider(self.root, from_=0, to=90, variable=self.angle_var, command=self.update_angle)
-        self.angle_slider.grid(row=6, column=1, padx=10, pady=5)
-        self.angle_entry = ctk.CTkEntry(self.root, width=80)
+        # Angle row
+        angle_frame = ctk.CTkFrame(self.root)
+        angle_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(angle_frame, text="Угол наклона:", width=150, anchor="w").pack(side="left", padx=5)
+        self.angle_slider = ctk.CTkSlider(angle_frame, from_=0, to=90, variable=self.angle_var, command=self.update_angle, width=200)
+        self.angle_slider.pack(side="left", padx=5)
+        self.angle_entry = ctk.CTkEntry(angle_frame, width=80)
         self.angle_entry.insert(0, str(self.angle_var.get()))
-        self.angle_entry.grid(row=6, column=2, padx=10, pady=5)
+        self.angle_entry.pack(side="left", padx=5)
         self.angle_entry.bind("<Return>", lambda e: self.angle_var.set(round(float(self.angle_entry.get()), 2)))
 
-        ctk.CTkLabel(self.root, text="Сопротивление воздуха:").grid(row=7, column=0, padx=10, pady=5)
-        self.air_resistance_slider = ctk.CTkSlider(self.root, from_=0, to=50, variable=self.air_resistance_var, command=self.update_air_resistance)
-        self.air_resistance_slider.grid(row=7, column=1, padx=10, pady=5)
-        self.air_resistance_entry = ctk.CTkEntry(self.root, width=80)
+        # Air resistance row
+        air_resistance_frame = ctk.CTkFrame(self.root)
+        air_resistance_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(air_resistance_frame, text="Сопротивление воздуха:", width=150, anchor="w").pack(side="left", padx=5)
+        self.air_resistance_slider = ctk.CTkSlider(air_resistance_frame, from_=0, to=50, variable=self.air_resistance_var, command=self.update_air_resistance, width=200)
+        self.air_resistance_slider.pack(side="left", padx=5)
+        self.air_resistance_entry = ctk.CTkEntry(air_resistance_frame, width=80)
         self.air_resistance_entry.insert(0, str(self.air_resistance_var.get()))
-        self.air_resistance_entry.grid(row=7, column=2, padx=10, pady=5)
+        self.air_resistance_entry.pack(side="left", padx=5)
         self.air_resistance_entry.bind("<Return>", lambda e: self.air_resistance_var.set(round(float(self.air_resistance_entry.get()), 2)))
 
-        self.clear_button = ctk.CTkButton(self.root, text="Очистить поле", command=self.clear_objects)
-        self.clear_button.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
-        self.mode_button = ctk.CTkButton(self.root, text="Режим: Рогатка", command=self.toggle_mode)
-        self.mode_button.grid(row=9, column=0, columnspan=3, padx=10, pady=10)
-        self.color_effect_button = ctk.CTkButton(self.root, text="Эффект: Выкл", command=self.toggle_color_effect)
-        self.color_effect_button.grid(row=10, column=0, columnspan=3, padx=10, pady=10)
+        # Mode buttons frame (above clear button)
+        mode_button_frame = ctk.CTkFrame(self.root)
+        mode_button_frame.pack(pady=10, padx=(20, 0))  # Shift right with padx
+        self.slingshot_button = ctk.CTkButton(mode_button_frame, text="Рогатка", command=self.set_slingshot_mode, width=100)
+        self.slingshot_button.pack(side="left", padx=(0, 5))
+        self.cannon_button = ctk.CTkButton(mode_button_frame, text="Пушка", command=self.set_cannon_mode, width=100)
+        self.cannon_button.pack(side="left", padx=5)
+
+        # Clear button (below mode buttons, shorter)
+        self.clear_button = ctk.CTkButton(self.root, text="Очистить поле", command=self.clear_objects, width=150)
+        self.clear_button.pack(pady=10, padx=10)
+
+        # Color effect switch (below clear button, same width as clear button)
+        self.color_effect_switch = ctk.CTkSwitch(self.root, text="Эффект: Выкл", command=self.toggle_color_effect, width=150)
+        self.color_effect_switch.pack(pady=10, padx=10)
 
     def update_gravity(self, value):
         gravity = round(float(value), 2)
@@ -154,20 +187,21 @@ class SimulationUI:
     def clear_objects(self):
         self.physics.clear_objects()
 
-    def toggle_mode(self):
-        if config.mode == "slingshot":
-            config.mode = "cannon"
-            self.mode_button.configure(text="Режим: Пушка")
-        else:
-            config.mode = "slingshot"
-            self.mode_button.configure(text="Режим: Рогатка")
+    def set_slingshot_mode(self):
+        config.mode = "slingshot"
+        self.physics.slingshot.reset()
+        self.physics.cannon.reset()
+        self.clear_objects()
+
+    def set_cannon_mode(self):
+        config.mode = "cannon"
         self.physics.slingshot.reset()
         self.physics.cannon.reset()
         self.clear_objects()
 
     def toggle_color_effect(self):
         config.color_effect = not config.color_effect
-        self.color_effect_button.configure(text="Эффект: " + ("Вкл" if config.color_effect else "Выкл"))
+        self.color_effect_switch.configure(text="Эффект: " + ("Вкл" if config.color_effect else "Выкл"))
 
     def _on_closing(self):
         self.running_event.clear()

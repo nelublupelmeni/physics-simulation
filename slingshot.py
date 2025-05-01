@@ -28,7 +28,7 @@ class Slingshot:
         if event.button == 1 and self.ball and self.is_dragging:
             mouse_pos = pygame.mouse.get_pos()
             angle = math.atan2(self.pressed_pos[1] - mouse_pos[1], self.pressed_pos[0] - mouse_pos[0])
-            force = math.hypot(self.pressed_pos[0] - mouse_pos[0], self.pressed_pos[1] - mouse_pos[1]) * 50
+            force = math.hypot(self.pressed_pos[0] - mouse_pos[0], self.pressed_pos[1] - mouse_pos[1]) * 20
             fx = math.cos(angle) * force
             fy = math.sin(angle) * force
             self.ball.body.body_type = pymunk.Body.DYNAMIC
@@ -40,7 +40,7 @@ class Slingshot:
     def update(self):
         if self.is_dragging and self.ball:
             mouse_pos = pygame.mouse.get_pos()
-            max_distance = 200
+            max_distance = 100
             dx = mouse_pos[0] - self.pressed_pos[0]
             dy = mouse_pos[1] - self.pressed_pos[1]
             distance = math.hypot(dx, dy)

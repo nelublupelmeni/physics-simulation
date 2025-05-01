@@ -41,8 +41,6 @@ def run_simulation(graphics, physics, running_event):
         graphics.update()
         clock.tick(fps)
 
-    pygame.quit()
-
 def main():
     pygame.init()
     width, height = 1200, 800
@@ -54,8 +52,12 @@ def main():
     sim_thread = threading.Thread(target=run_simulation, args=(graphics, physics, running_event), daemon=True)
     sim_thread.start()
 
-    ui = SimulationUI(physics, running_event)
+    ui = SimulationUI(physics, running_event, sim_thread)
     ui.run()
+
+    running_event.clear()
+    sim_thread.join(timeout=1.0)
+    pygame.quit()
 
 if __name__ == "__main__":
     main()

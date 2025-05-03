@@ -23,18 +23,32 @@ class Graphics:
         pymunk.pygame_util.positive_y_is_up = False
 
     def clear(self):
-        self.screen.fill(self.bg_color)
+        # Use the background color from config.ui_colors based on the current theme
+        bg_hex = config.ui_colors[config.theme]["bg"]
+        # Convert hex color to RGB tuple
+        bg_rgb = tuple(int(bg_hex[i:i+2], 16) for i in (1, 3, 5))
+        self.screen.fill(bg_rgb)
 
     def draw_objects(self, space):
         if config.color_effect:
+            # Store original colors of circles and set to transparent
+            circle_colors = []
             for body in space.bodies:
                 for shape in body.shapes:
                     if isinstance(shape, pymunk.Circle):
-                        color = pygame.Color(0)
-                        color.hsva = (shape.hue, 90, 100, 100)
-                        pygame.draw.circle(self.screen, (30, 30, 30), (int(body.position.x), int(body.position.y)), int(shape.radius))
-                        pygame.draw.circle(self.screen, color, (int(body.position.x), int(body.position.y)), int(shape.radius) - 2)
+                        circle_colors.append((shape, shape.color))
+                        shape.color = (0, 0, 0, 0)  # Transparent
+            # Draw all non-circle shapes (including boundaries)
+            space.debug_draw(self.draw_options)
+            # Restore circle colors and draw with color effect
+            for shape, original_color in circle_colors:
+                shape.color = original_color
+                color = pygame.Color(0)
+                color.hsva = (shape.hue, 90, 100, 100)
+                pygame.draw.circle(self.screen, (30, 30, 30), (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius))
+                pygame.draw.circle(self.screen, color, (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius) - 2)
         else:
+            # Draw all shapes using default draw_options
             space.debug_draw(self.draw_options)
 
     def update(self):

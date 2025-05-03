@@ -6,8 +6,8 @@ import config
 class Cannon:
     def __init__(self, physics):
         self.physics = physics
-        self.x = 100
-        self.y = physics.height - 25
+        self.x = 60  # Moved left from 100 to 50
+        self.y = physics.height - 55  # Moved up from height-25 to height-75
         self.trajectory_points = []
         self.ball = None
         self.fired = False
@@ -48,7 +48,7 @@ class Cannon:
             ball = self.physics.add_ball(
                 radius=config.radius,
                 mass=config.mass,
-                pos=(self.x + 30, self.y - 20),
+                pos=(self.x + 30, self.y - 20),  # Same relative offset from new origin
                 elasticity=config.elasticity,
                 friction=config.friction,
             )
@@ -84,6 +84,8 @@ class Cannon:
                 self.trajectory_points.append((x, y))
                 # Apply air resistance force (quadratic model)
                 velocity = self.ball.body.velocity
+
+
                 speed = math.sqrt(velocity[0]**2 + velocity[1]**2)
                 if speed > 0:
                     rho = 1.225  # Air density (kg/m^3)
@@ -115,24 +117,32 @@ class Cannon:
         origin_x = self.x
         origin_y = self.y
 
-        pygame.draw.line(screen, (0, 0, 0, 128), (origin_x, origin_y), (self.physics.width, origin_y), 2)
-        pygame.draw.line(screen, (0, 0, 0, 128), (origin_x, origin_y), (origin_x, 0), 2)
+        # Determine color based on theme (using RGBA for compatibility)
+        axis_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
+        text_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
 
+        # Draw axes
+        pygame.draw.line(screen, axis_color, (origin_x, origin_y), (self.physics.width, origin_y), 2)
+        pygame.draw.line(screen, axis_color, (origin_x, origin_y), (origin_x, 0), 2)
+
+        # Draw grid labels
         for x in range(0, self.physics.width - origin_x, grid_step):
             meters_x = x // METERS_TO_PIXELS
-            label = self.scale_font.render(f"{meters_x} м", True, (0, 0, 0, 128))
+            label = self.scale_font.render(f"{meters_x} м", True, text_color)
             screen.blit(label, (origin_x + x, origin_y + 5))
 
         for y in range(0, origin_y, grid_step):
             meters_y = y // METERS_TO_PIXELS
-            label = self.scale_font.render(f"{meters_y} м", True, (0, 0, 0, 128))
+            label = self.scale_font.render(f"{meters_y} м", True, text_color)
             screen.blit(label, (origin_x - 40, origin_y - y - 10))
 
+        # Draw cannon
         pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y - 20, 60, 20))
         end_x = self.x + 30 + 60 * math.cos(math.radians(config.angle))
         end_y = self.y - 20 - 60 * math.sin(math.radians(config.angle))
         pygame.draw.line(screen, (150, 150, 150), (self.x + 30, self.y - 20), (end_x, end_y), 3)
 
+        # Draw trajectory points
         for point in self.trajectory_points:
             try:
                 if (isinstance(point, tuple) and len(point) == 2 and
@@ -142,11 +152,12 @@ class Cannon:
             except Exception as e:
                 print(f"Error drawing trajectory point {point}: {e}")
 
+        # Draw timer
         if self.fired or self.end_time > 0:
             current_time = pygame.time.get_ticks()
             elapsed_time = (self.end_time if self.end_time > 0 else current_time) - self.start_time
             elapsed_time /= 1000
-            timer_text = self.font.render(f"Время: {elapsed_time:.2f} сек", True, (0, 0, 0))
+            timer_text = self.font.render(f"Время: {elapsed_time:.2f} сек", True, text_color)
             screen.blit(timer_text, (screen.get_width() - 220, 10))
 
     def reset(self):

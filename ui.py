@@ -154,7 +154,7 @@ class SimulationUI:
         self.air_resistance_entry.pack(side="left", padx=5)
         self.air_resistance_entry.bind("<Return>", lambda e: self.air_resistance_var.set(round(float(self.air_resistance_entry.get()), 2)))
 
-        # Mode buttons frame (above clear button)
+        # Mode buttons frame
         mode_button_frame = ctk.CTkFrame(self.root, fg_color=config.ui_colors[config.theme]["bg"])
         mode_button_frame.pack(pady=10, padx=(20, 0))  # Shift right with padx
         self.slingshot_button = ctk.CTkButton(mode_button_frame, text="Рогатка", 
@@ -164,7 +164,17 @@ class SimulationUI:
                                           command=self.set_cannon_mode, width=100)
         self.cannon_button.pack(side="left", padx=5)
 
-        # Clear button (below mode buttons)
+        # Shape selection buttons frame (below mode buttons)
+        shape_button_frame = ctk.CTkFrame(self.root, fg_color=config.ui_colors[config.theme]["bg"])
+        shape_button_frame.pack(pady=10, padx=(20, 0))
+        self.circle_button = ctk.CTkButton(shape_button_frame, text="Круг", 
+                                          command=self.set_circle_shape, width=100)
+        self.circle_button.pack(side="left", padx=(0, 5))
+        self.square_button = ctk.CTkButton(shape_button_frame, text="Квадрат", 
+                                          command=self.set_square_shape, width=100)
+        self.square_button.pack(side="left", padx=5)
+
+        # Clear button (below shape buttons)
         self.clear_button = ctk.CTkButton(self.root, text="Очистить поле", 
                                          command=self.clear_objects, width=150)
         self.clear_button.pack(pady=10, padx=10)
@@ -194,6 +204,8 @@ class SimulationUI:
         
         self.mode_button_frame = self.root.winfo_children()[8]  # Mode button frame
         self.mode_button_frame.configure(fg_color=config.ui_colors[config.theme]["bg"])
+        self.shape_button_frame = self.root.winfo_children()[9]  # Shape button frame
+        self.shape_button_frame.configure(fg_color=config.ui_colors[config.theme]["bg"])
 
         self.theme_switch.configure(text="Тема: Светлая" if config.theme == "light" else "Тема: Тёмная")
 
@@ -253,6 +265,14 @@ class SimulationUI:
         self.physics.slingshot.reset()
         self.physics.cannon.reset()
         self.clear_objects()
+
+    def set_circle_shape(self):
+        config.shape_type = "circle"
+        self.physics.slingshot.reset()
+
+    def set_square_shape(self):
+        config.shape_type = "square"
+        self.physics.slingshot.reset()
 
     def toggle_color_effect(self):
         config.color_effect = not config.color_effect

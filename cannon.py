@@ -6,8 +6,8 @@ import config
 class Cannon:
     def __init__(self, physics):
         self.physics = physics
-        self.x = 60  # Moved left from 100 to 50
-        self.y = physics.height - 55  # Moved up from height-25 to height-75
+        self.x = 50  # Moved left from 100 to 50
+        self.y = physics.height - 75  # Moved up from height-25 to height-75
         self.trajectory_points = []
         self.ball = None
         self.fired = False
@@ -45,12 +45,13 @@ class Cannon:
 
     def create_ball(self):
         try:
-            ball = self.physics.add_ball(
+            ball = self.physics.add_shape(
+                shape_type="circle",
                 radius=config.radius,
                 mass=config.mass,
-                pos=(self.x + 30, self.y - 20),  # Same relative offset from new origin
+                pos=(self.x + 30, self.y - 20),
                 elasticity=config.elasticity,
-                friction=config.friction,
+                friction=config.friction
             )
             ball.body.body_type = pymunk.Body.KINEMATIC
             return ball
@@ -84,8 +85,6 @@ class Cannon:
                 self.trajectory_points.append((x, y))
                 # Apply air resistance force (quadratic model)
                 velocity = self.ball.body.velocity
-
-
                 speed = math.sqrt(velocity[0]**2 + velocity[1]**2)
                 if speed > 0:
                     rho = 1.225  # Air density (kg/m^3)

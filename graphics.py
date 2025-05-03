@@ -31,22 +31,27 @@ class Graphics:
 
     def draw_objects(self, space):
         if config.color_effect:
-            # Store original colors of circles and set to transparent
-            circle_colors = []
+            # Store original colors and set to transparent
+            shape_colors = []
             for body in space.bodies:
                 for shape in body.shapes:
-                    if isinstance(shape, pymunk.Circle):
-                        circle_colors.append((shape, shape.color))
+                    if isinstance(shape, (pymunk.Circle, pymunk.Poly)) and body.body_type == pymunk.Body.DYNAMIC:
+                        shape_colors.append((shape, shape.color))
                         shape.color = (0, 0, 0, 0)  # Transparent
-            # Draw all non-circle shapes (including boundaries)
+            # Draw all shapes (boundaries, etc.)
             space.debug_draw(self.draw_options)
-            # Restore circle colors and draw with color effect
-            for shape, original_color in circle_colors:
+            # Restore colors and draw with color effect
+            for shape, original_color in shape_colors:
                 shape.color = original_color
                 color = pygame.Color(0)
                 color.hsva = (shape.hue, 90, 100, 100)
-                pygame.draw.circle(self.screen, (30, 30, 30), (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius))
-                pygame.draw.circle(self.screen, color, (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius) - 2)
+                if isinstance(shape, pymunk.Circle):
+                    pygame.draw.circle(self.screen, (30, 30, 30), (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius))
+                    pygame.draw.circle(self.screen, color, (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius) - 2)
+                elif isinstance(shape, pymunk.Poly):
+                    vertices = [(shape.body.position.x + v.x, shape.body.position.y + v.y) for v in shape.get_vertices()]
+                    pygame.draw.polygon(self.screen, (30, 30, 30), vertices)
+                    pygame.draw.polygon(self.screen, color, vertices, 2)
         else:
             # Draw all shapes using default draw_options
             space.debug_draw(self.draw_options)

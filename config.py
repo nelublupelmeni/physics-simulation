@@ -9,6 +9,7 @@ angle = 45.0
 air_resistance = 0.1
 mode = "slingshot"
 color_effect = False
+shape_type = "circle"  # Default shape for slingshot
 
 # Theme configuration
 theme = "light"  # Initial theme: light

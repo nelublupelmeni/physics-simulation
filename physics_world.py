@@ -28,24 +28,33 @@ class PhysicsWorld:
             shape.friction = 0.5
             self.space.add(body, shape)
 
-    def add_ball(self, radius, mass, pos, elasticity=0.9, friction=0.4):
+    def add_shape(self, shape_type, radius, mass, pos, elasticity=0.9, friction=0.4):
         body = pymunk.Body()
         body.position = pos
-        shape = pymunk.Circle(body, radius)
+        if shape_type == "circle":
+            shape = pymunk.Circle(body, radius)
+            shape.color = (255, 0, 0, 100)  # Red for circles
+        elif shape_type == "square":
+            # Create a square with side length equal to diameter (2 * radius)
+            side_length = 2 * radius
+            shape = pymunk.Poly.create_box(body, (side_length, side_length))
+            shape.color = (0, 0, 255, 100)  # Blue for squares
+        else:
+            raise ValueError(f"Unknown shape_type: {shape_type}")
         shape.mass = mass
         shape.elasticity = elasticity
         shape.friction = friction
-        shape.color = (255, 0, 0, 100)
-        shape.hue = 0
+        shape.hue = 0  # Initialize hue for color effect
         self.space.add(body, shape)
         return shape
 
     def update(self, dt):
         self.space.step(dt)
         for body in self.space.bodies:
-            for shape in body.shapes:
-                if isinstance(shape, pymunk.Circle):
-                    shape.hue = (shape.hue + 0.5) % 360
+            if body.body_type == pymunk.Body.DYNAMIC:  # Only dynamic shapes
+                for shape in body.shapes:
+                    if isinstance(shape, (pymunk.Circle, pymunk.Poly)):
+                        shape.hue = (shape.hue + 0.5) % 360
 
     def clear_objects(self):
         for body in self.space.bodies:
@@ -61,8 +70,16 @@ class PhysicsWorld:
             for shape in body.shapes:
                 if isinstance(shape, pymunk.Circle):
                     objects.append({
-                        "type": "ball",
+                        "type": "circle",
                         "position": body.position,
                         "radius": shape.radius
                     })
+                elif isinstance(shape, pymunk.Poly):
+                    # Check if it's a square (dynamic body) vs boundary (static)
+                    if body.body_type == pymunk.Body.DYNAMIC:
+                        objects.append({
+                            "type": "square",
+                            "position": body.position,
+                            "size": shape.get_vertices()[1][0] * 2  # Side length
+                        })
         return objects

@@ -1,4 +1,5 @@
 import pymunk
+import math
 from slingshot import Slingshot
 from cannon import Cannon
 
@@ -39,6 +40,17 @@ class PhysicsWorld:
             side_length = 2 * radius
             shape = pymunk.Poly.create_box(body, (side_length, side_length))
             shape.color = (0, 0, 255, 100)  # Blue for squares
+        elif shape_type == "triangle":
+            # Create an equilateral triangle with side length equal to diameter (2 * radius)
+            side_length = 2 * radius
+            height = (math.sqrt(3) / 2) * side_length
+            vertices = [
+                (0, -height / 3),  # Centered at body position
+                (-side_length / 2, height * 2 / 3),
+                (side_length / 2, height * 2 / 3)
+            ]
+            shape = pymunk.Poly(body, vertices)
+            shape.color = (255, 255, 0, 100)  # Yellow for triangles
         else:
             raise ValueError(f"Unknown shape_type: {shape_type}")
         shape.mass = mass
@@ -75,11 +87,19 @@ class PhysicsWorld:
                         "radius": shape.radius
                     })
                 elif isinstance(shape, pymunk.Poly):
-                    # Check if it's a square (dynamic body) vs boundary (static)
                     if body.body_type == pymunk.Body.DYNAMIC:
-                        objects.append({
-                            "type": "square",
-                            "position": body.position,
-                            "size": shape.get_vertices()[1][0] * 2  # Side length
-                        })
+                        # Determine shape type based on number of vertices
+                        vertices = shape.get_vertices()
+                        if len(vertices) == 4:  # Square
+                            objects.append({
+                                "type": "square",
+                                "position": body.position,
+                                "size": vertices[1][0] * 2  # Side length
+                            })
+                        elif len(vertices) == 3:  # Triangle
+                            objects.append({
+                                "type": "triangle",
+                                "position": body.position,
+                                "size": math.hypot(vertices[1][0] - vertices[2][0], vertices[1][1] - vertices[2][1])  # Side length
+                            })
         return objects

@@ -172,7 +172,10 @@ class SimulationUI:
         self.circle_button.pack(side="left", padx=(0, 5))
         self.square_button = ctk.CTkButton(shape_button_frame, text="Квадрат", 
                                           command=self.set_square_shape, width=100)
-        self.square_button.pack(side="left", padx=5)
+        self.square_button.pack(side="left", padx=(0, 5))
+        self.triangle_button = ctk.CTkButton(shape_button_frame, text="Треугольник", 
+                                            command=self.set_triangle_shape, width=100)
+        self.triangle_button.pack(side="left", padx=5)
 
         # Clear button (below shape buttons)
         self.clear_button = ctk.CTkButton(self.root, text="Очистить поле", 
@@ -272,6 +275,10 @@ class SimulationUI:
 
     def set_square_shape(self):
         config.shape_type = "square"
+        self.physics.slingshot.reset()
+
+    def set_triangle_shape(self):
+        config.shape_type = "triangle"
         self.physics.slingshot.reset()
 
     def toggle_color_effect(self):

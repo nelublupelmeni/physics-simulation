@@ -41,6 +41,30 @@ class SimulationUI:
         y_position = pygame_y
         self.root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
+    def _lighten_color(self, hex_color, factor=0.3):
+        """Lighten a hex color by a given factor (0 to 1)."""
+        hex_color = hex_color.lstrip('#')
+        rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        rgb_light = tuple(min(255, int(c + (255 - c) * factor)) for c in rgb)
+        return f"#{rgb_light[0]:02x}{rgb_light[1]:02x}{rgb_light[2]:02x}"
+
+    def _update_mode_buttons(self):
+        """Update the appearance of mode buttons based on the current mode."""
+        default_fg_color = ctk.ThemeManager.theme["CTkButton"]["fg_color"]
+        light_fg_color = self._lighten_color(default_fg_color[0], 0.3)
+        
+        self.slingshot_button.configure(fg_color=default_fg_color if config.mode == "slingshot" else light_fg_color)
+        self.cannon_button.configure(fg_color=default_fg_color if config.mode == "cannon" else light_fg_color)
+
+    def _update_shape_buttons(self):
+        """Update the appearance of shape buttons based on the current shape type."""
+        default_fg_color = ctk.ThemeManager.theme["CTkButton"]["fg_color"]
+        light_fg_color = self._lighten_color(default_fg_color[0], 0.3)
+        
+        self.circle_button.configure(fg_color=default_fg_color if config.shape_type == "circle" else light_fg_color)
+        self.square_button.configure(fg_color=default_fg_color if config.shape_type == "square" else light_fg_color)
+        self.triangle_button.configure(fg_color=default_fg_color if config.shape_type == "triangle" else light_fg_color)
+
     def _create_widgets(self):
         # Mass row
         mass_frame = ctk.CTkFrame(self.root, fg_color=config.ui_colors[config.theme]["bg"])
@@ -192,6 +216,10 @@ class SimulationUI:
                                          command=self.toggle_theme, width=150)
         self.theme_switch.pack(pady=10, padx=10)
 
+        # Initialize button states
+        self._update_mode_buttons()
+        self._update_shape_buttons()
+
     def toggle_theme(self):
         # Toggle theme
         config.theme = "dark" if config.theme == "light" else "light"
@@ -211,6 +239,10 @@ class SimulationUI:
         self.shape_button_frame.configure(fg_color=config.ui_colors[config.theme]["bg"])
 
         self.theme_switch.configure(text="Тема: Светлая" if config.theme == "light" else "Тема: Тёмная")
+        
+        # Update button states after theme change
+        self._update_mode_buttons()
+        self._update_shape_buttons()
 
     def update_gravity(self, value):
         gravity = round(float(value), 2)
@@ -262,24 +294,29 @@ class SimulationUI:
         self.physics.slingshot.reset()
         self.physics.cannon.reset()
         self.clear_objects()
+        self._update_mode_buttons()
 
     def set_cannon_mode(self):
         config.mode = "cannon"
         self.physics.slingshot.reset()
         self.physics.cannon.reset()
         self.clear_objects()
+        self._update_mode_buttons()
 
     def set_circle_shape(self):
         config.shape_type = "circle"
         self.physics.slingshot.reset()
+        self._update_shape_buttons()
 
     def set_square_shape(self):
         config.shape_type = "square"
         self.physics.slingshot.reset()
+        self._update_shape_buttons()
 
     def set_triangle_shape(self):
         config.shape_type = "triangle"
         self.physics.slingshot.reset()
+        self._update_shape_buttons()
 
     def toggle_color_effect(self):
         config.color_effect = not config.color_effect

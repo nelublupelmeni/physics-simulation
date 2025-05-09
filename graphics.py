@@ -3,6 +3,7 @@ import pymunk
 import pymunk.pygame_util
 import config
 import os
+import math
 
 class Graphics:
     def __init__(self, width, height, title, bg_color):
@@ -31,27 +32,48 @@ class Graphics:
 
     def draw_objects(self, space):
         if config.color_effect:
-            # Store original colors and set to transparent
-            shape_colors = []
+            # Store dynamic shapes and remove them from space to prevent debug_draw rendering
+            dynamic_shapes = []
             for body in space.bodies:
-                for shape in body.shapes:
-                    if isinstance(shape, (pymunk.Circle, pymunk.Poly)) and body.body_type == pymunk.Body.DYNAMIC:
-                        shape_colors.append((shape, shape.color))
-                        shape.color = (0, 0, 0, 0)  # Transparent
-            # Draw all shapes (boundaries, etc.)
+                if body.body_type == pymunk.Body.DYNAMIC:
+                    for shape in body.shapes:
+                        if isinstance(shape, pymunk.Shape):
+                            dynamic_shapes.append((shape, shape.color))
+                            space.remove(shape)
+            
+            # Draw static shapes (boundaries, etc.)
             space.debug_draw(self.draw_options)
-            # Restore colors and draw with color effect
-            for shape, original_color in shape_colors:
+            
+            # Re-add dynamic shapes and draw with color effect
+            for shape, original_color in dynamic_shapes:
+                space.add(shape)
                 shape.color = original_color
                 color = pygame.Color(0)
-                color.hsva = (shape.hue, 90, 100, 100)
+                color.hsva = (shape.hue, 90, 100, 100)  # Hue-based color for full shape
+                
                 if isinstance(shape, pymunk.Circle):
-                    pygame.draw.circle(self.screen, (30, 30, 30), (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius))
-                    pygame.draw.circle(self.screen, color, (int(shape.body.position.x), int(shape.body.position.y)), int(shape.radius) - 2)
+                    # Draw circle with solid hue-based color fill
+                    pygame.draw.circle(self.screen, color, 
+                                     (int(shape.body.position.x), int(shape.body.position.y)), 
+                                     int(shape.radius))
                 elif isinstance(shape, pymunk.Poly):
-                    vertices = [(shape.body.position.x + v.x, shape.body.position.y + v.y) for v in shape.get_vertices()]
-                    pygame.draw.polygon(self.screen, (30, 30, 30), vertices)
-                    pygame.draw.polygon(self.screen, color, vertices, 2)
+                    # Draw polygon with solid hue-based color fill, accounting for rotation
+                    vertices = shape.get_vertices()
+                    body = shape.body
+                    cos_angle = math.cos(body.angle)
+                    sin_angle = math.sin(body.angle)
+                    # Transform vertices: rotate by body.angle, then translate by body.position
+                    transformed_vertices = []
+                    for v in vertices:
+                        # Rotate vertex around shape center
+                        x = v.x * cos_angle - v.y * sin_angle
+                        y = v.x * sin_angle + v.y * cos_angle
+                        # Translate by body position
+                        x += body.position.x
+                        y += body.position.y
+                        transformed_vertices.append((x, y))
+                    pygame.draw.polygon(self.screen, color, transformed_vertices)
+                # Add drawing logic for future shape types here (e.g., pymunk.Segment)
         else:
             # Draw all shapes using default draw_options
             space.debug_draw(self.draw_options)

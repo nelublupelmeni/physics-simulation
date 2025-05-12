@@ -30,47 +30,64 @@ class PhysicsWorld:
             self.space.add(body, shape)
 
     def add_shape(self, shape_type, radius, mass, pos, elasticity=0.9, friction=0.4):
-        body = pymunk.Body()
+        if shape_type == "button":
+            body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        else:
+            body = pymunk.Body()
         body.position = pos
         if shape_type == "circle":
             shape = pymunk.Circle(body, radius)
             shape.color = (255, 0, 0, 100)  # Red for circles
         elif shape_type == "square":
-            # Create a square with side length equal to diameter (2 * radius)
             side_length = 2 * radius
             shape = pymunk.Poly.create_box(body, (side_length, side_length))
             shape.color = (0, 0, 255, 100)  # Blue for squares
         elif shape_type == "triangle":
-            # Create an equilateral triangle with side length equal to diameter (2 * radius)
             side_length = 2 * radius
             height = (math.sqrt(3) / 2) * side_length
             vertices = [
-                (0, -height / 3),  # Centered at body position
+                (0, -height / 3),
                 (-side_length / 2, height * 2 / 3),
                 (side_length / 2, height * 2 / 3)
             ]
             shape = pymunk.Poly(body, vertices)
             shape.color = (255, 255, 0, 100)  # Yellow for triangles
+        elif shape_type == "button":
+            shape = pymunk.Circle(body, radius)
+            shape.color = (0, 255, 0, 100)  # Green for buttons
         else:
             raise ValueError(f"Unknown shape_type: {shape_type}")
-        shape.mass = mass
+        if shape_type != "button":
+            shape.mass = mass
+            shape.hue = 0  # Initialize hue for color effect (dynamic shapes only)
         shape.elasticity = elasticity
         shape.friction = friction
-        shape.hue = 0  # Initialize hue for color effect
-        self.space.add(body, shape)
+        try:
+            self.space.add(body, shape)
+        except Exception as e:
+            print(f"Error adding shape to space: {e}")
+            return None
         return shape
 
     def update(self, dt):
         self.space.step(dt)
         for body in self.space.bodies:
-            if body.body_type == pymunk.Body.DYNAMIC:  # Only dynamic shapes
+            if body.body_type == pymunk.Body.DYNAMIC:
                 for shape in body.shapes:
                     if isinstance(shape, (pymunk.Circle, pymunk.Poly)):
                         shape.hue = (shape.hue + 0.5) % 360
 
     def clear_objects(self):
+        # Removes user-created dynamic and static shapes, preserving boundaries
+        boundary_positions = [
+            (self.width / 2, self.height - 5),
+            (self.width / 2, 5),
+            (5, self.height / 2),
+            (self.width - 5, self.height / 2)
+        ]
         for body in self.space.bodies:
-            if body.body_type == pymunk.Body.DYNAMIC:
+            if (body.body_type == pymunk.Body.DYNAMIC or
+                (body.body_type == pymunk.Body.STATIC and body.position not in boundary_positions)):
                 self.space.remove(body, *body.shapes)
 
     def set_gravity(self, gravity):
@@ -82,24 +99,23 @@ class PhysicsWorld:
             for shape in body.shapes:
                 if isinstance(shape, pymunk.Circle):
                     objects.append({
-                        "type": "circle",
+                        "type": "circle" if body.body_type != pymunk.Body.STATIC else "button",
                         "position": body.position,
                         "radius": shape.radius
                     })
                 elif isinstance(shape, pymunk.Poly):
                     if body.body_type == pymunk.Body.DYNAMIC:
-                        # Determine shape type based on number of vertices
                         vertices = shape.get_vertices()
-                        if len(vertices) == 4:  # Square
+                        if len(vertices) == 4:
                             objects.append({
                                 "type": "square",
                                 "position": body.position,
-                                "size": vertices[1][0] * 2  # Side length
+                                "size": vertices[1][0] * 2
                             })
-                        elif len(vertices) == 3:  # Triangle
+                        elif len(vertices) == 3:
                             objects.append({
                                 "type": "triangle",
                                 "position": body.position,
-                                "size": math.hypot(vertices[1][0] - vertices[2][0], vertices[1][1] - vertices[2][1])  # Side length
+                                "size": math.hypot(vertices[1][0] - vertices[2][0], vertices[1][1] - vertices[2][1])
                             })
         return objects

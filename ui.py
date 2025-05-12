@@ -64,6 +64,7 @@ class SimulationUI:
         self.circle_button.configure(fg_color=default_fg_color if config.shape_type == "circle" else light_fg_color)
         self.square_button.configure(fg_color=default_fg_color if config.shape_type == "square" else light_fg_color)
         self.triangle_button.configure(fg_color=default_fg_color if config.shape_type == "triangle" else light_fg_color)
+        self.button_button.configure(fg_color=default_fg_color if config.shape_type == "button" else light_fg_color)
 
     def _create_widgets(self):
         # Mass row
@@ -192,14 +193,17 @@ class SimulationUI:
         shape_button_frame = ctk.CTkFrame(self.root, fg_color=config.ui_colors[config.theme]["bg"])
         shape_button_frame.pack(pady=10, padx=(20, 0))
         self.circle_button = ctk.CTkButton(shape_button_frame, text="Круг", 
-                                          command=self.set_circle_shape, width=100)
+                                          command=self.set_circle_shape, width=80)
         self.circle_button.pack(side="left", padx=(0, 5))
         self.square_button = ctk.CTkButton(shape_button_frame, text="Квадрат", 
-                                          command=self.set_square_shape, width=100)
+                                          command=self.set_square_shape, width=80)
         self.square_button.pack(side="left", padx=(0, 5))
         self.triangle_button = ctk.CTkButton(shape_button_frame, text="Треугольник", 
-                                            command=self.set_triangle_shape, width=100)
-        self.triangle_button.pack(side="left", padx=5)
+                                            command=self.set_triangle_shape, width=80)
+        self.triangle_button.pack(side="left", padx=(0, 5))
+        self.button_button = ctk.CTkButton(shape_button_frame, text="Кнопка", 
+                                          command=self.set_button_shape, width=80)
+        self.button_button.pack(side="left", padx=5)
 
         # Clear button (below shape buttons)
         self.clear_button = ctk.CTkButton(self.root, text="Очистить поле", 
@@ -221,26 +225,23 @@ class SimulationUI:
         self._update_shape_buttons()
 
     def toggle_theme(self):
-        # Toggle theme
         config.theme = "dark" if config.theme == "light" else "light"
         ctk.set_appearance_mode(config.theme)
         self.root.configure(fg_color=config.ui_colors[config.theme]["bg"])
 
-        # Update widget colors
-        for frame in [self.root.winfo_children()[i] for i in range(0, 8)]:  # Slider frames
+        for frame in [self.root.winfo_children()[i] for i in range(0, 8)]:
             frame.configure(fg_color=config.ui_colors[config.theme]["bg"])
             label, _, entry = frame.winfo_children()
             label.configure(text_color=config.ui_colors[config.theme]["fg"])
             entry.configure(text_color=config.ui_colors[config.theme]["fg"])
         
-        self.mode_button_frame = self.root.winfo_children()[8]  # Mode button frame
+        self.mode_button_frame = self.root.winfo_children()[8]
         self.mode_button_frame.configure(fg_color=config.ui_colors[config.theme]["bg"])
-        self.shape_button_frame = self.root.winfo_children()[9]  # Shape button frame
+        self.shape_button_frame = self.root.winfo_children()[9]
         self.shape_button_frame.configure(fg_color=config.ui_colors[config.theme]["bg"])
 
         self.theme_switch.configure(text="Тема: Светлая" if config.theme == "light" else "Тема: Тёмная")
         
-        # Update button states after theme change
         self._update_mode_buttons()
         self._update_shape_buttons()
 
@@ -305,16 +306,25 @@ class SimulationUI:
 
     def set_circle_shape(self):
         config.shape_type = "circle"
+        config.static_mode = False
         self.physics.slingshot.reset()
         self._update_shape_buttons()
 
     def set_square_shape(self):
         config.shape_type = "square"
+        config.static_mode = False
         self.physics.slingshot.reset()
         self._update_shape_buttons()
 
     def set_triangle_shape(self):
         config.shape_type = "triangle"
+        config.static_mode = False
+        self.physics.slingshot.reset()
+        self._update_shape_buttons()
+
+    def set_button_shape(self):
+        config.shape_type = "button"
+        config.static_mode = True
         self.physics.slingshot.reset()
         self._update_shape_buttons()
 

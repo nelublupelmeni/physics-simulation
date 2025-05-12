@@ -9,7 +9,8 @@ angle = 45.0
 air_resistance = 0.1
 mode = "slingshot"
 color_effect = False
-shape_type = "circle"  # Default shape for slingshot
+shape_type = "circle"  # Default shape for slingshot; options: circle, square, triangle, button
+static_mode = False  # True when button shape is selected for static placement
 
 # Theme configuration
 theme = "light"  # Initial theme: light

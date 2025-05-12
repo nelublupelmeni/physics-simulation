@@ -34,6 +34,26 @@ class Cannon:
 
     def handle_mouse_down(self, event):
         if event.button == 1:
+            mouse_pos = pygame.mouse.get_pos()
+            if config.shape_type == "button" and config.static_mode:
+                # Create a static button shape at the clicked position
+                try:
+                    shape = self.physics.add_shape(
+                        shape_type="button",
+                        radius=config.radius,
+                        mass=config.mass,
+                        pos=mouse_pos,
+                        elasticity=config.elasticity,
+                        friction=config.friction
+                    )
+                    if shape:
+                        print(f"Created static button at {mouse_pos}")
+                    else:
+                        print("Failed to create button shape")
+                except Exception as e:
+                    print(f"Error creating button shape: {e}")
+                return
+            # Original behavior for circle shape
             if self.ball:
                 try:
                     self.physics.space.remove(self.ball.body, self.ball)
@@ -60,7 +80,7 @@ class Cannon:
             return None
 
     def handle_mouse_up(self, event):
-        if event.button == 1 and self.ball:
+        if event.button == 1 and self.ball and config.shape_type != "button":
             try:
                 self.ball.body.body_type = pymunk.Body.DYNAMIC
                 angle_rad = math.radians(config.angle)
@@ -70,11 +90,13 @@ class Cannon:
                 self.fired = True
                 self.start_time = pygame.time.get_ticks()
                 self.end_time = 0
+                print(f"Fired circle with velocity ({velocity_x}, {velocity_y})")
             except Exception as e:
                 print(f"Error in handle_mouse_up: {e}")
+                self.ball = None
 
     def update(self):
-        if self.fired and self.ball and self.ball.body:
+        if self.fired and self.ball and self.ball.body and config.shape_type != "button":
             try:
                 x, y = self.ball.body.position
                 # Check for valid position
@@ -116,9 +138,11 @@ class Cannon:
         origin_x = self.x
         origin_y = self.y
 
-        # Determine color based on theme (using RGBA for compatibility)
+        # Determine color based on theme and mode
         axis_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
         text_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
+        cannon_color = (0, 255, 0) if config.shape_type == "button" and config.static_mode else (100, 100, 100)
+        barrel_color = (0, 255, 0) if config.shape_type == "button" and config.static_mode else (150, 150, 150)
 
         # Draw axes
         pygame.draw.line(screen, axis_color, (origin_x, origin_y), (self.physics.width, origin_y), 2)
@@ -136,10 +160,10 @@ class Cannon:
             screen.blit(label, (origin_x - 40, origin_y - y - 10))
 
         # Draw cannon
-        pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y - 20, 60, 20))
+        pygame.draw.rect(screen, cannon_color, (self.x, self.y - 20, 60, 20))
         end_x = self.x + 30 + 60 * math.cos(math.radians(config.angle))
         end_y = self.y - 20 - 60 * math.sin(math.radians(config.angle))
-        pygame.draw.line(screen, (150, 150, 150), (self.x + 30, self.y - 20), (end_x, end_y), 3)
+        pygame.draw.line(screen, barrel_color, (self.x + 30, self.y - 20), (end_x, end_y), 3)
 
         # Draw trajectory points
         for point in self.trajectory_points:

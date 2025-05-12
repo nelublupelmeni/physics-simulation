@@ -32,48 +32,68 @@ class Graphics:
 
     def draw_objects(self, space):
         if config.color_effect:
-            # Store dynamic shapes and remove them from space to prevent debug_draw rendering
+            # Store shapes and their colors, separating dynamic and static
             dynamic_shapes = []
+            static_shapes = []
             for body in space.bodies:
-                if body.body_type == pymunk.Body.DYNAMIC:
-                    for shape in body.shapes:
-                        if isinstance(shape, pymunk.Shape):
+                for shape in body.shapes:
+                    if isinstance(shape, pymunk.Shape):
+                        if body.body_type == pymunk.Body.DYNAMIC:
                             dynamic_shapes.append((shape, shape.color))
                             space.remove(shape)
+                        else:
+                            static_shapes.append((shape, shape.color))
+                            space.remove(shape)
             
-            # Draw static shapes (boundaries, etc.)
+            # Draw remaining shapes (e.g., boundaries) using debug_draw
             space.debug_draw(self.draw_options)
             
-            # Re-add dynamic shapes and draw with color effect
+            # Re-add and draw dynamic shapes with color effect
             for shape, original_color in dynamic_shapes:
                 space.add(shape)
                 shape.color = original_color
                 color = pygame.Color(0)
-                color.hsva = (shape.hue, 90, 100, 100)  # Hue-based color for full shape
+                color.hsva = (shape.hue, 90, 100, 100)  # Hue-based color for dynamic shapes
                 
                 if isinstance(shape, pymunk.Circle):
-                    # Draw circle with solid hue-based color fill
                     pygame.draw.circle(self.screen, color, 
                                      (int(shape.body.position.x), int(shape.body.position.y)), 
                                      int(shape.radius))
                 elif isinstance(shape, pymunk.Poly):
-                    # Draw polygon with solid hue-based color fill, accounting for rotation
                     vertices = shape.get_vertices()
                     body = shape.body
                     cos_angle = math.cos(body.angle)
                     sin_angle = math.sin(body.angle)
-                    # Transform vertices: rotate by body.angle, then translate by body.position
                     transformed_vertices = []
                     for v in vertices:
-                        # Rotate vertex around shape center
                         x = v.x * cos_angle - v.y * sin_angle
                         y = v.x * sin_angle + v.y * cos_angle
-                        # Translate by body position
                         x += body.position.x
                         y += body.position.y
                         transformed_vertices.append((x, y))
                     pygame.draw.polygon(self.screen, color, transformed_vertices)
-                # Add drawing logic for future shape types here (e.g., pymunk.Segment)
+            
+            # Re-add and draw static shapes with their original colors
+            for shape, original_color in static_shapes:
+                space.add(shape)
+                shape.color = original_color
+                if isinstance(shape, pymunk.Circle):
+                    pygame.draw.circle(self.screen, original_color, 
+                                     (int(shape.body.position.x), int(shape.body.position.y)), 
+                                     int(shape.radius))
+                elif isinstance(shape, pymunk.Poly):
+                    vertices = shape.get_vertices()
+                    body = shape.body
+                    cos_angle = math.cos(body.angle)
+                    sin_angle = math.sin(body.angle)
+                    transformed_vertices = []
+                    for v in vertices:
+                        x = v.x * cos_angle - v.y * sin_angle
+                        y = v.x * sin_angle + v.y * cos_angle
+                        x += body.position.x
+                        y += body.position.y
+                        transformed_vertices.append((x, y))
+                    pygame.draw.polygon(self.screen, original_color, transformed_vertices)
         else:
             # Draw all shapes using default draw_options
             space.debug_draw(self.draw_options)

@@ -6,9 +6,11 @@ import config
 class Cannon:
     def __init__(self, physics):
         self.physics = physics
-        self.x = 50  # Moved left from 100 to 50
-        self.y = physics.height - 75  # Moved up from height-25 to height-75
+        self.x = 50
+        self.y = physics.height - 75
         self.trajectory_points = []
+        self.velocity_points = []
+        self.range_data = []
         self.ball = None
         self.fired = False
         self.start_time = 0
@@ -31,14 +33,19 @@ class Cannon:
                         cannon.fired = False
                         if cannon.end_time == 0:
                             cannon.end_time = pygame.time.get_ticks()
+                            # Calculate range (max x - initial x)
+                            if cannon.trajectory_points:
+                                max_x = max(x for x, y in cannon.trajectory_points)
+                                range_m = (max_x - (cannon.x + 30)) / 100  # Use initial x
+                                angle = config.angle
+                                cannon.range_data.append((angle, range_m))
 
     def handle_mouse_down(self, event):
         if event.button == 1:
             mouse_pos = pygame.mouse.get_pos()
             if config.shape_type == "button" and config.static_mode:
-                # Create a static button shape at the clicked position
                 try:
-                    shape = self.physics.add_shape(
+                    self.physics.add_shape(
                         shape_type="button",
                         radius=config.radius,
                         mass=config.mass,
@@ -46,21 +53,17 @@ class Cannon:
                         elasticity=config.elasticity,
                         friction=config.friction
                     )
-                    if shape:
-                        print(f"Created static button at {mouse_pos}")
-                    else:
-                        print("Failed to create button shape")
-                except Exception as e:
-                    print(f"Error creating button shape: {e}")
+                except:
+                    pass
                 return
-            # Original behavior for circle shape
             if self.ball:
                 try:
                     self.physics.space.remove(self.ball.body, self.ball)
-                except Exception as e:
-                    print(f"Error removing ball: {e}")
+                except:
+                    pass
                 self.ball = None
             self.trajectory_points = []
+            self.velocity_points = []
             self.ball = self.create_ball()
 
     def create_ball(self):
@@ -75,8 +78,7 @@ class Cannon:
             )
             ball.body.body_type = pymunk.Body.KINEMATIC
             return ball
-        except Exception as e:
-            print(f"Error creating ball: {e}")
+        except:
             return None
 
     def handle_mouse_up(self, event):
@@ -90,40 +92,36 @@ class Cannon:
                 self.fired = True
                 self.start_time = pygame.time.get_ticks()
                 self.end_time = 0
-                print(f"Fired circle with velocity ({velocity_x}, {velocity_y})")
-            except Exception as e:
-                print(f"Error in handle_mouse_up: {e}")
+            except:
                 self.ball = None
 
     def update(self):
         if self.fired and self.ball and self.ball.body and config.shape_type != "button":
             try:
                 x, y = self.ball.body.position
-                # Check for valid position
                 if not (isinstance(x, (int, float)) and isinstance(y, (int, float)) and math.isfinite(x) and math.isfinite(y)):
                     self.fired = False
                     self.ball = None
                     return
                 self.trajectory_points.append((x, y))
-                # Apply air resistance force (quadratic model)
                 velocity = self.ball.body.velocity
                 speed = math.sqrt(velocity[0]**2 + velocity[1]**2)
+                elapsed_time = (pygame.time.get_ticks() - self.start_time) / 1000
+                self.velocity_points.append((elapsed_time, speed / 100))
                 if speed > 0:
-                    rho = 1.225  # Air density (kg/m^3)
-                    C_d = 0.47   # Drag coefficient for a sphere
-                    radius_m = config.radius / 100  # Convert radius to meters
-                    A = math.pi * radius_m**2  # Cross-sectional area (m^2)
+                    rho = 1.225
+                    C_d = 0.47
+                    radius_m = config.radius / 100
+                    A = math.pi * radius_m**2
                     k = 0.5 * rho * C_d * A * config.air_resistance
                     drag_force = (-k * speed * velocity[0], -k * speed * velocity[1])
-                    # Limit drag force to prevent instability
                     max_force = 10000
                     drag_magnitude = math.sqrt(drag_force[0]**2 + drag_force[1]**2)
                     if drag_magnitude > max_force:
                         scale = max_force / drag_magnitude
                         drag_force = (drag_force[0] * scale, drag_force[1] * scale)
                     self.ball.body.apply_force_at_local_point(drag_force, (0, 0))
-            except Exception as e:
-                print(f"Error in update: {e}")
+            except:
                 self.fired = False
                 self.ball = None
 
@@ -138,17 +136,14 @@ class Cannon:
         origin_x = self.x
         origin_y = self.y
 
-        # Determine color based on theme and mode
         axis_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
         text_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
         cannon_color = (0, 255, 0) if config.shape_type == "button" and config.static_mode else (100, 100, 100)
         barrel_color = (0, 255, 0) if config.shape_type == "button" and config.static_mode else (150, 150, 150)
 
-        # Draw axes
         pygame.draw.line(screen, axis_color, (origin_x, origin_y), (self.physics.width, origin_y), 2)
         pygame.draw.line(screen, axis_color, (origin_x, origin_y), (origin_x, 0), 2)
 
-        # Draw grid labels
         for x in range(0, self.physics.width - origin_x, grid_step):
             meters_x = x // METERS_TO_PIXELS
             label = self.scale_font.render(f"{meters_x} м", True, text_color)
@@ -159,23 +154,20 @@ class Cannon:
             label = self.scale_font.render(f"{meters_y} м", True, text_color)
             screen.blit(label, (origin_x - 40, origin_y - y - 10))
 
-        # Draw cannon
         pygame.draw.rect(screen, cannon_color, (self.x, self.y - 20, 60, 20))
         end_x = self.x + 30 + 60 * math.cos(math.radians(config.angle))
         end_y = self.y - 20 - 60 * math.sin(math.radians(config.angle))
         pygame.draw.line(screen, barrel_color, (self.x + 30, self.y - 20), (end_x, end_y), 3)
 
-        # Draw trajectory points
         for point in self.trajectory_points:
             try:
                 if (isinstance(point, tuple) and len(point) == 2 and
                     isinstance(point[0], (int, float)) and isinstance(point[1], (int, float)) and
                     math.isfinite(point[0]) and math.isfinite(point[1])):
                     pygame.draw.circle(screen, (200, 50, 50), (int(point[0]), int(point[1])), 2)
-            except Exception as e:
-                print(f"Error drawing trajectory point {point}: {e}")
+            except:
+                pass
 
-        # Draw timer
         if self.fired or self.end_time > 0:
             current_time = pygame.time.get_ticks()
             elapsed_time = (self.end_time if self.end_time > 0 else current_time) - self.start_time
@@ -187,10 +179,11 @@ class Cannon:
         if self.ball:
             try:
                 self.physics.space.remove(self.ball.body, self.ball)
-            except Exception as e:
-                print(f"Error in reset: {e}")
+            except:
+                pass
             self.ball = None
         self.trajectory_points = []
+        self.velocity_points = []
         self.fired = False
         self.start_time = 0
         self.end_time = 0

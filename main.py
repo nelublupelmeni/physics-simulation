@@ -9,7 +9,7 @@ import config
 
 def run_simulation(graphics, physics, running_event):
     clock = pygame.time.Clock()
-    fps = 60
+    fps = 120  # Increased for better physics accuracy
     dt = 1 / fps
 
     while running_event.is_set():

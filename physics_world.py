@@ -27,6 +27,7 @@ class PhysicsWorld:
             shape = pymunk.Poly.create_box(body, size)
             shape.elasticity = 0.4
             shape.friction = 0.5
+            shape.color = (128, 128, 128, 255)  # Default gray color for boundaries
             self.space.add(body, shape)
 
     def add_shape(self, shape_type, radius, mass, pos, elasticity=0.9, friction=0.4):
@@ -78,7 +79,6 @@ class PhysicsWorld:
                         shape.hue = (shape.hue + 0.5) % 360
 
     def clear_objects(self):
-        # Removes user-created dynamic and static shapes, preserving boundaries
         boundary_positions = [
             (self.width / 2, self.height - 5),
             (self.width / 2, 5),

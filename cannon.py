@@ -108,18 +108,13 @@ class Cannon:
                 speed = math.sqrt(velocity[0]**2 + velocity[1]**2)
                 elapsed_time = (pygame.time.get_ticks() - self.start_time) / 1000
                 self.velocity_points.append((elapsed_time, speed / 100))
-                if speed > 0:
-                    rho = 1.225
-                    C_d = 0.47
-                    radius_m = config.radius / 100
-                    A = math.pi * radius_m**2
+                if speed > 0 and config.air_resistance > 0:  # Apply drag only if air resistance is enabled
+                    rho = 1.225  # kg/m^3
+                    C_d = 0.47   # Drag coefficient for a sphere
+                    radius_m = config.radius / 100  # Convert radius to meters
+                    A = math.pi * radius_m**2  # Cross-sectional area
                     k = 0.5 * rho * C_d * A * config.air_resistance
                     drag_force = (-k * speed * velocity[0], -k * speed * velocity[1])
-                    max_force = 10000
-                    drag_magnitude = math.sqrt(drag_force[0]**2 + drag_force[1]**2)
-                    if drag_magnitude > max_force:
-                        scale = max_force / drag_magnitude
-                        drag_force = (drag_force[0] * scale, drag_force[1] * scale)
                     self.ball.body.apply_force_at_local_point(drag_force, (0, 0))
             except:
                 self.fired = False

@@ -253,6 +253,53 @@ class SimulationUI:
             entry.delete(0, ctk.END)
             entry.insert(0, str(var.get()))
 
+    def reset_settings(self):
+        # Default values from config.py, excluding mode, shape_type, static_mode, color_effect, and theme
+        config.mass = 10.0
+        config.radius = 20.0
+        config.elasticity = 0.8
+        config.friction = 0.2
+        config.gravity = 9.81
+        config.initial_velocity = 500.0
+        config.angle = 45.0
+        config.air_resistance = 0.1
+
+        # Update variables
+        self.mass_var.set(config.mass)
+        self.radius_var.set(config.radius)
+        self.elasticity_var.set(config.elasticity)
+        self.friction_var.set(config.friction)
+        self.gravity_var.set(config.gravity)
+        self.velocity_var.set(config.initial_velocity / 100)
+        self.angle_var.set(config.angle)
+        self.air_resistance_var.set(config.air_resistance)
+
+        # Update entry fields
+        self.mass_entry.delete(0, ctk.END)
+        self.mass_entry.insert(0, str(config.mass))
+        self.radius_entry.delete(0, ctk.END)
+        self.radius_entry.insert(0, str(config.radius))
+        self.elasticity_entry.delete(0, ctk.END)
+        self.elasticity_entry.insert(0, str(config.elasticity))
+        self.friction_entry.delete(0, ctk.END)
+        self.friction_entry.insert(0, str(config.friction))
+        self.gravity_entry.delete(0, ctk.END)
+        self.gravity_entry.insert(0, str(config.gravity))
+        self.velocity_entry.delete(0, ctk.END)
+        self.velocity_entry.insert(0, str(config.initial_velocity / 100))
+        self.angle_entry.delete(0, ctk.END)
+        self.angle_entry.insert(0, str(config.angle))
+        self.air_resistance_entry.delete(0, ctk.END)
+        self.air_resistance_entry.insert(0, str(config.air_resistance))
+
+        # Update physics
+        self.physics.set_gravity(config.gravity * 100)
+        self.physics.slingshot.reset()
+        self.physics.cannon.reset()
+
+        # Update plot buttons for the current mode
+        self._update_plot_buttons()
+
     def _create_widgets(self):
         self.INITIAL_ELASTICITY = config.elasticity
         self.INITIAL_FRICTION = config.friction
@@ -393,9 +440,14 @@ class SimulationUI:
                                            command=self.set_button_shape, width=80)
         self.button_button.pack(side="left", padx=5)
 
-        self.clear_button = ctk.CTkButton(self.root, text="Очистить поле", 
+        self.clear_button_frame = ctk.CTkFrame(self.root, fg_color=self._get_theme_color("bg"))
+        self.clear_button_frame.pack(pady=10, padx=10)
+        self.clear_button = ctk.CTkButton(self.clear_button_frame, text="Очистить поле", 
                                           command=self.clear_objects, width=150)
-        self.clear_button.pack(pady=10, padx=10)
+        self.clear_button.pack(side="left", padx=5)
+        self.reset_button = ctk.CTkButton(self.clear_button_frame, text="Сброс настроек", 
+                                          command=self.reset_settings, width=150)
+        self.reset_button.pack(side="left", padx=5)
 
         self.color_effect_switch = ctk.CTkSwitch(self.root, text="Эффект: Выкл", 
                                                  command=self.toggle_color_effect, width=150)
@@ -448,6 +500,7 @@ class SimulationUI:
         self.mode_button_frame.configure(fg_color=self._get_theme_color("bg"))
         self.shape_button_frame.configure(fg_color=self._get_theme_color("bg"))
         self.plot_button_frame.configure(fg_color=self._get_theme_color("bg"))
+        self.clear_button_frame.configure(fg_color=self._get_theme_color("bg"))
 
         self.theme_switch.configure(text="Тема: Светлая" if config.theme == "light" else "Тема: Тёмная")
         self._update_ui_state()

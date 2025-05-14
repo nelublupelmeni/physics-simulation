@@ -7,7 +7,9 @@ from ui import SimulationUI
 from physics_world import PhysicsWorld
 import config
 
+
 def run_simulation(graphics, physics, running_event):
+    """Запуск симуляции физического мира."""
     clock = pygame.time.Clock()
     fps = 120  # Increased for better physics accuracy
     dt = 1 / fps
@@ -41,7 +43,9 @@ def run_simulation(graphics, physics, running_event):
         graphics.update()
         clock.tick(fps)
 
+
 def main():
+    """Инициализация и запуск основного цикла программы."""
     pygame.init()
     width, height = 1200, 800
     graphics = Graphics(width, height, "Гравитационная симуляция", (255, 255, 255))
@@ -49,7 +53,9 @@ def main():
 
     running_event = threading.Event()
     running_event.set()
-    sim_thread = threading.Thread(target=run_simulation, args=(graphics, physics, running_event), daemon=True)
+    sim_thread = threading.Thread(target=run_simulation,
+                                 args=(graphics, physics, running_event),
+                                 daemon=True)
     sim_thread.start()
 
     ui = SimulationUI(physics, running_event, sim_thread)
@@ -58,6 +64,7 @@ def main():
     running_event.clear()
     sim_thread.join(timeout=1.0)
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()

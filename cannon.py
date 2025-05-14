@@ -3,8 +3,12 @@ import math
 import pymunk
 import config
 
+
 class Cannon:
+    """Класс для управления пушкой в симуляции."""
+
     def __init__(self, physics):
+        """Инициализация пушки."""
         self.physics = physics
         # Начало координат в пикселях (0, 0 в метрах = 70, 700 в пикселях)
         self.x = 70  # Смещение пушки по X
@@ -21,11 +25,13 @@ class Cannon:
         self._setup_collision_handler()
 
     def _setup_collision_handler(self):
+        """Настройка обработчика столкновений."""
         handler = self.physics.space.add_collision_handler(0, 0)
         handler.data["cannon"] = self
         handler.post_solve = self._collision_callback
 
     def _collision_callback(self, arbiter, space, data):
+        """Обработка столкновений."""
         cannon = data["cannon"]
         if cannon.fired and cannon.ball in arbiter.shapes:
             for shape in arbiter.shapes:
@@ -42,6 +48,7 @@ class Cannon:
                                 cannon.range_data.append((angle, range_m))
 
     def handle_mouse_down(self, event):
+        """Обработка нажатия кнопки мыши."""
         if event.button == 1:
             mouse_pos = pygame.mouse.get_pos()
             if config.shape_type == "button" and config.static_mode:
@@ -68,6 +75,7 @@ class Cannon:
             self.ball = self.create_ball()
 
     def create_ball(self):
+        """Создание мячика для выстрела."""
         try:
             # Начальная позиция мячика в (0, 0) метрах = (70, 700) пикселей
             ball = self.physics.add_shape(
@@ -84,6 +92,7 @@ class Cannon:
             return None
 
     def handle_mouse_up(self, event):
+        """Обработка отпускания кнопки мыши."""
         if event.button == 1 and self.ball and config.shape_type != "button":
             try:
                 self.ball.body.body_type = pymunk.Body.DYNAMIC
@@ -98,10 +107,12 @@ class Cannon:
                 self.ball = None
 
     def update(self):
+        """Обновление состояния пушки."""
         if self.fired and self.ball and self.ball.body and config.shape_type != "button":
             try:
                 x, y = self.ball.body.position
-                if not (isinstance(x, (int, float)) and isinstance(y, (int, float)) and math.isfinite(x) and math.isfinite(y)):
+                if not (isinstance(x, (int, float)) and isinstance(y, (int, float)) and
+                        math.isfinite(x) and math.isfinite(y)):
                     self.fired = False
                     self.ball = None
                     return
@@ -135,6 +146,7 @@ class Cannon:
                 self.ball = None
 
     def draw(self, screen):
+        """Отрисовка пушки и траектории."""
         if self.font is None:
             self.font = pygame.font.SysFont('Arial', 30)
         if self.scale_font is None:
@@ -147,7 +159,7 @@ class Cannon:
 
         axis_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
         text_color = (255, 255, 255, 255) if config.theme == "dark" else (0, 0, 0, 255)
-        
+
         # Цвета пушки в зависимости от темы и режима
         cannon_base_color = (0, 150, 0) if config.shape_type == "button" and config.static_mode else (80, 80, 80)
         cannon_highlight_color = (0, 180, 0) if config.shape_type == "button" and config.static_mode else (100, 100, 100)
@@ -156,7 +168,8 @@ class Cannon:
         wheel_color = (60, 60, 60) if config.theme == "dark" else (40, 40, 40)
 
         # Рисуем оси с началом в (70, 700)
-        pygame.draw.line(screen, axis_color, (origin_x, origin_y), (self.physics.width, origin_y), 2)
+        pygame.draw.line(screen, axis_color, (origin_x, origin_y),
+                         (self.physics.width, origin_y), 2)
         pygame.draw.line(screen, axis_color, (origin_x, origin_y), (origin_x, 0), 2)
 
         # Метки осей в метрах (Y вниз)
@@ -175,7 +188,8 @@ class Cannon:
         end_x = self.x + 80 * math.cos(math.radians(config.angle))  # Удлиненный ствол
         end_y = self.y - 80 * math.sin(math.radians(config.angle))
         # Тень ствола
-        pygame.draw.line(screen, barrel_shadow_color, (self.x + 2, self.y + 2), (end_x + 2, end_y + 2), 7)
+        pygame.draw.line(screen, barrel_shadow_color, (self.x + 2, self.y + 2),
+                         (end_x + 2, end_y + 2), 7)
         # Основной ствол
         pygame.draw.line(screen, barrel_color, (self.x, self.y), (end_x, end_y), 5)
         # Подсветка ствола
@@ -183,9 +197,12 @@ class Cannon:
 
         # Основание пушки (скругленный прямоугольник с градиентом) — опущено вниз на 20 пикселей
         base_y = self.y + 20  # Сдвиг основания вниз
-        pygame.draw.rect(screen, cannon_base_color, (self.x - 40, base_y - 25, 80, 30), border_radius=5)
-        pygame.draw.rect(screen, cannon_highlight_color, (self.x - 40, base_y - 25, 80, 15), border_radius=5)  # Верхняя часть с подсветкой
-        pygame.draw.rect(screen, (0, 0, 0, 50), (self.x - 40, base_y - 25, 80, 30), 2, border_radius=5)  # Контур
+        pygame.draw.rect(screen, cannon_base_color, (self.x - 40, base_y - 25, 80, 30),
+                         border_radius=5)
+        pygame.draw.rect(screen, cannon_highlight_color, (self.x - 40, base_y - 25, 80, 15),
+                         border_radius=5)  # Верхняя часть с подсветкой
+        pygame.draw.rect(screen, (0, 0, 0, 50), (self.x - 40, base_y - 25, 80, 30), 2,
+                         border_radius=5)  # Контур
 
         # Колеса пушки — также опущены вниз на 20 пикселей
         wheel_y = base_y + 5  # Сдвиг колес вниз
@@ -198,8 +215,9 @@ class Cannon:
         for point in self.trajectory_points:
             try:
                 if (isinstance(point, tuple) and len(point) == 2 and
-                    isinstance(point[0], (int, float)) and isinstance(point[1], (int, float)) and
-                    math.isfinite(point[0]) and math.isfinite(point[1])):
+                        isinstance(point[0], (int, float)) and
+                        isinstance(point[1], (int, float)) and
+                        math.isfinite(point[0]) and math.isfinite(point[1])):
                     pygame.draw.circle(screen, (200, 50, 50), (int(point[0]), int(point[1])), 2)
             except:
                 pass
@@ -213,6 +231,7 @@ class Cannon:
             screen.blit(timer_text, (screen.get_width() - 220, 10))
 
     def reset(self):
+        """Сброс состояния пушки."""
         if self.ball:
             try:
                 self.physics.space.remove(self.ball.body, self.ball)

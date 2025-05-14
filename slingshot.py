@@ -3,8 +3,12 @@ import pygame
 import pymunk
 import config
 
+
 class Slingshot:
+    """Класс для управления рогаткой в симуляции."""
+
     def __init__(self, physics):
+        """Инициализация рогатки."""
         self.physics = physics
         self.shape = None  # For LMB slingshot dragging (circle, square, or triangle)
         self.pressed_pos = None
@@ -13,6 +17,7 @@ class Slingshot:
         self.is_rmb_dragging = False
 
     def handle_mouse_down(self, event):
+        """Обработка нажатия кнопки мыши."""
         mouse_pos = pygame.mouse.get_pos()
         if event.button == 1:  # Left mouse button
             if config.shape_type == "button" and config.static_mode:
@@ -73,6 +78,7 @@ class Slingshot:
                         self.rmb_shape = None
 
     def handle_mouse_up(self, event):
+        """Обработка отпускания кнопки мыши."""
         if event.button == 1 and self.shape and self.is_dragging:
             mouse_pos = pygame.mouse.get_pos()
             angle = math.atan2(self.pressed_pos[1] - mouse_pos[1], self.pressed_pos[0] - mouse_pos[0])
@@ -101,6 +107,7 @@ class Slingshot:
                 self.is_rmb_dragging = False
 
     def update(self):
+        """Обновление состояния рогатки."""
         if self.is_dragging and self.shape:
             mouse_pos = pygame.mouse.get_pos()
             max_distance = 100
@@ -126,11 +133,13 @@ class Slingshot:
                 self.is_rmb_dragging = False
 
     def draw(self, screen):
+        """Отрисовка рогатки на экране."""
         if self.is_dragging and self.pressed_pos and self.shape:
             mouse_pos = pygame.mouse.get_pos()
             pygame.draw.line(screen, (0, 0, 0), self.pressed_pos, mouse_pos, 2)
 
     def reset(self):
+        """Сброс состояния рогатки."""
         if self.shape:
             try:
                 self.physics.space.remove(self.shape.body, self.shape)

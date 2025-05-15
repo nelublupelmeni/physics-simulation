@@ -1,9 +1,7 @@
 import math
 import pygame
 import pymunk
-
 import config
-
 
 class Cannon:
     """Класс для управления пушкой в симуляции."""

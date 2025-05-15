@@ -70,7 +70,7 @@ class Slingshot:
             distance = math.hypot(self.pressed_pos[0] - mouse_pos[0], self.pressed_pos[1] - mouse_pos[1])
             # Уменьшаем импульс для массы < 3
             if config.mass < 3:
-                force = min(distance * 20 * 0.2, 5000)
+                force = min(distance * 20 * 0.1, 5000)
             else:
                 force = min(distance * 20, 5000)
             fx = math.cos(angle) * force

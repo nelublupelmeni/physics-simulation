@@ -11,7 +11,7 @@ import config
 def run_simulation(graphics, physics, running_event):
     """Запуск симуляции физического мира."""
     clock = pygame.time.Clock()
-    fps = 120  # Increased for better physics accuracy
+    fps = 60 
     dt = 1 / fps
 
     while running_event.is_set():

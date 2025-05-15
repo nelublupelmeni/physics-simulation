@@ -16,7 +16,7 @@ def plot_velocity_vs_time(cannon):
     plt.title('Зависимость скорости шара от времени')
     plt.legend()
     plt.grid(True)
-    plt.savefig('velocity_vs_time.png')
+    plt.show()  # Display the plot instead of saving
 
 
 def plot_range_vs_angle(cannon):
@@ -40,4 +40,4 @@ def plot_range_vs_angle(cannon):
     plt.title('Зависимость дальности полёта от угла наклона')
     plt.legend()
     plt.grid(True)
-    plt.savefig('range_vs_angle.png')
+    plt.show()  # Показать миру график

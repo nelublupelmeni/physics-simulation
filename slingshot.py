@@ -10,18 +10,16 @@ class Slingshot:
     def __init__(self, physics):
         """Инициализация рогатки."""
         self.physics = physics
-        self.shape = None  # For LMB slingshot dragging (circle, square, or triangle)
+        self.shape = None  # Для перетаскивания левой кнопкой мыши (круг, квадрат, треугольник)
         self.pressed_pos = None
         self.is_dragging = False
-        self.rmb_shape = None  # For RMB direct dragging
-        self.is_rmb_dragging = False
 
     def handle_mouse_down(self, event):
         """Обработка нажатия кнопки мыши."""
         mouse_pos = pygame.mouse.get_pos()
-        if event.button == 1:  # Left mouse button
+        if event.button == 1:  # Левая кнопка мыши
             if config.shape_type == "button" and config.static_mode:
-                # Create a static button shape at the clicked position
+                # Создание статической кнопки в месте клика
                 try:
                     self.physics.add_shape(
                         shape_type="button",
@@ -32,11 +30,11 @@ class Slingshot:
                         friction=config.friction
                     )
                 except Exception as e:
-                    print(f"Error creating button shape: {e}")
+                    print(f"Ошибка создания формы кнопки: {e}")
                 return
             if not self.shape:
                 self.pressed_pos = mouse_pos
-                # Query the physics space to find a dynamic shape under the mouse
+                # Поиск динамической формы под курсором
                 point_query = self.physics.space.point_query_nearest(
                     mouse_pos, max_distance=10, shape_filter=pymunk.ShapeFilter(categories=0x1, mask=0x1)
                 )
@@ -46,7 +44,7 @@ class Slingshot:
                         self.shape.body.body_type = pymunk.Body.STATIC
                         self.is_dragging = True
                     except Exception as e:
-                        print(f"Error selecting shape for LMB: {e}")
+                        print(f"Ошибка выбора формы для ЛКМ: {e}")
                         self.shape = None
                 else:
                     try:
@@ -61,28 +59,20 @@ class Slingshot:
                         self.shape.body.body_type = pymunk.Body.STATIC
                         self.is_dragging = True
                     except Exception as e:
-                        print(f"Error creating shape: {e}")
+                        print(f"Ошибка создания формы: {e}")
                         self.shape = None
-        elif event.button == 3:  # Right mouse button (direct dragging)
-            if not self.rmb_shape:
-                point_query = self.physics.space.point_query_nearest(
-                    mouse_pos, max_distance=10, shape_filter=pymunk.ShapeFilter(categories=0x1, mask=0x1)
-                )
-                if point_query and point_query.shape and point_query.shape.body.body_type == pymunk.Body.DYNAMIC:
-                    self.rmb_shape = point_query.shape
-                    try:
-                        self.rmb_shape.body.body_type = pymunk.Body.STATIC
-                        self.is_rmb_dragging = True
-                    except Exception as e:
-                        print(f"Error selecting shape for RMB: {e}")
-                        self.rmb_shape = None
 
     def handle_mouse_up(self, event):
         """Обработка отпускания кнопки мыши."""
         if event.button == 1 and self.shape and self.is_dragging:
             mouse_pos = pygame.mouse.get_pos()
             angle = math.atan2(self.pressed_pos[1] - mouse_pos[1], self.pressed_pos[0] - mouse_pos[0])
-            force = math.hypot(self.pressed_pos[0] - mouse_pos[0], self.pressed_pos[1] - mouse_pos[1]) * 20
+            distance = math.hypot(self.pressed_pos[0] - mouse_pos[0], self.pressed_pos[1] - mouse_pos[1])
+            # Уменьшаем импульс для массы < 3
+            if config.mass < 3:
+                force = min(distance * 20 * 0.2, 5000)
+            else:
+                force = min(distance * 20, 5000)
             fx = math.cos(angle) * force
             fy = math.sin(angle) * force
             try:
@@ -92,19 +82,10 @@ class Slingshot:
                 self.shape = None
                 self.pressed_pos = None
             except Exception as e:
-                print(f"Error in LMB handle_mouse_up: {e}")
+                print(f"Ошибка в обработке отпускания ЛКМ: {e}")
                 self.shape = None
                 self.is_dragging = False
                 self.pressed_pos = None
-        elif event.button == 3 and self.rmb_shape and self.is_rmb_dragging:
-            try:
-                self.rmb_shape.body.body_type = pymunk.Body.DYNAMIC
-                self.is_rmb_dragging = False
-                self.rmb_shape = None
-            except Exception as e:
-                print(f"Error in RMB handle_mouse_up: {e}")
-                self.rmb_shape = None
-                self.is_rmb_dragging = False
 
     def update(self):
         """Обновление состояния рогатки."""
@@ -120,17 +101,9 @@ class Slingshot:
             try:
                 self.shape.body.position = (self.pressed_pos[0] + dx, self.pressed_pos[1] + dy)
             except Exception as e:
-                print(f"Error in LMB update: {e}")
+                print(f"Ошибка в обновлении ЛКМ: {e}")
                 self.shape = None
                 self.is_dragging = False
-        if self.is_rmb_dragging and self.rmb_shape:
-            mouse_pos = pygame.mouse.get_pos()
-            try:
-                self.rmb_shape.body.position = mouse_pos
-            except Exception as e:
-                print(f"Error in RMB update: {e}")
-                self.rmb_shape = None
-                self.is_rmb_dragging = False
 
     def draw(self, screen):
         """Отрисовка рогатки на экране."""
@@ -144,14 +117,7 @@ class Slingshot:
             try:
                 self.physics.space.remove(self.shape.body, self.shape)
             except Exception as e:
-                print(f"Error in reset (LMB shape): {e}")
+                print(f"Ошибка в сбросе (форма ЛКМ): {e}")
             self.shape = None
-        if self.rmb_shape:
-            try:
-                self.physics.space.remove(self.rmb_shape.body, self.rmb_shape)
-            except Exception as e:
-                print(f"Error in reset (RMB shape): {e}")
-            self.rmb_shape = None
         self.pressed_pos = None
         self.is_dragging = False
-        self.is_rmb_dragging = False

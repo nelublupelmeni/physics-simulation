@@ -287,7 +287,7 @@ class SimulationUI:
         try:
             precision = 3 if var == self.angle_var else 2
             value = float(entry.get())
-            # Clamp values to valid ranges
+            # Ограничение значений допустимыми диапазонами
             if var == self.mass_var:
                 value = max(1, min(100, value))
             elif var == self.radius_var:
@@ -313,7 +313,7 @@ class SimulationUI:
 
     def reset_settings(self):
         """Сброс настроек симуляции."""
-        # Default values from config.py, excluding mode, shape_type, static_mode, color_effect, and theme
+        # Значения по умолчанию из config.py
         config.mass = 10.0
         config.radius = 20.0
         config.elasticity = 0.8
@@ -323,7 +323,7 @@ class SimulationUI:
         config.angle = 45.0
         config.air_resistance = 0.1
 
-        # Update variables
+        # Обновление переменных
         self.mass_var.set(config.mass)
         self.radius_var.set(config.radius)
         self.elasticity_var.set(config.elasticity)
@@ -333,7 +333,7 @@ class SimulationUI:
         self.angle_var.set(config.angle)
         self.air_resistance_var.set(config.air_resistance)
 
-        # Update entry fields
+        # Обновление полей ввода
         self.mass_entry.delete(0, ctk.END)
         self.mass_entry.insert(0, str(config.mass))
         self.radius_entry.delete(0, ctk.END)
@@ -351,12 +351,12 @@ class SimulationUI:
         self.air_resistance_entry.delete(0, ctk.END)
         self.air_resistance_entry.insert(0, str(config.air_resistance))
 
-        # Update physics
+        # Обновление физики
         self.physics.set_gravity(config.gravity * 100)
         self.physics.slingshot.reset()
         self.physics.cannon.reset()
 
-        # Update plot buttons for the current mode
+        # Обновление кнопок построения графиков для текущего режима
         self._update_plot_buttons()
 
     def _create_widgets(self):

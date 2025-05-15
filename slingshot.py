@@ -6,7 +6,7 @@ import config
 
 class Slingshot:
     """Класс для управления рогаткой в симуляции."""
-    MAX_SLINGSHOT_LENGTH = 400.0  # Maximum slingshot stretch distance in pixels
+    MAX_SLINGSHOT_LENGTH = 400.0  # Максимальная длина натяжения рогатки в пикселях
 
     def __init__(self, physics):
         """Инициализация рогатки."""
@@ -17,7 +17,7 @@ class Slingshot:
 
     def handle_mouse_down(self, event):
         """Обработка нажатия кнопки мыши."""
-        if event.button != 1:  # Only handle left mouse button
+        if event.button != 1:  
             return
         mouse_pos = pygame.mouse.get_pos()
         if config.shape_type == "button" and config.static_mode:
@@ -31,11 +31,11 @@ class Slingshot:
                     friction=config.friction
                 )
             except Exception as e:
-                print(f"Error creating button shape: {e}")
+                print(f"Ошибка при создании формы кнопки: {e}")
             return
         if not self.shape:
             self.pressed_pos = mouse_pos
-            # Check for existing dynamic shape under cursor
+            # Проверка на существование динамической формы под курсором
             point_query = self.physics.space.point_query_nearest(
                 mouse_pos, max_distance=10, shape_filter=pymunk.ShapeFilter(categories=0x1, mask=0x1)
             )
@@ -44,9 +44,9 @@ class Slingshot:
                 try:
                     self.shape.body.body_type = pymunk.Body.STATIC
                     self.is_dragging = True
-                    print(f"Selected existing shape at {mouse_pos}")
+                    print(f"Выбрана существующая форма на позиции {mouse_pos}")
                 except Exception as e:
-                    print(f"Error selecting shape: {e}")
+                    print(f"Ошибка при выборе формы: {e}")
                     self.shape = None
             else:
                 try:
@@ -61,11 +61,10 @@ class Slingshot:
                     if self.shape:
                         self.shape.body.body_type = pymunk.Body.STATIC
                         self.is_dragging = True
-                       
                     else:
-                        print("Failed to create shape")
+                        print("Не удалось создать форму")
                 except Exception as e:
-                    print(f"Error creating shape: {e}")
+                    print(f"Ошибка при создании формы: {e}")
                     self.shape = None
 
     def handle_mouse_up(self, event):
@@ -94,7 +93,7 @@ class Slingshot:
             self.shape = None
             self.pressed_pos = None
         except Exception as e:
-            print(f"Error releasing shape: {e}")
+            print(f"Ошибка при отпускании формы: {e}")
             self.shape = None
             self.is_dragging = False
             self.pressed_pos = None
@@ -113,7 +112,7 @@ class Slingshot:
         try:
             self.shape.body.position = (self.pressed_pos[0] + dx, self.pressed_pos[1] + dy)
         except Exception as e:
-            print(f"Error updating shape position: {e}")
+            print(f"Ошибка при обновлении позиции формы: {e}")
             self.shape = None
             self.is_dragging = False
 
@@ -136,9 +135,9 @@ class Slingshot:
         if self.shape:
             try:
                 self.physics.space.remove(self.shape.body, self.shape)
-                print("Slingshot reset: Shape removed")
+                print("Сброс рогатки: Форма удалена")
             except Exception as e:
-                print(f"Error resetting slingshot: {e}")
+                print(f"Ошибка при сбросе рогатки: {e}")
             self.shape = None
         self.pressed_pos = None
         self.is_dragging = False

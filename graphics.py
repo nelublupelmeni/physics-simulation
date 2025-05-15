@@ -36,7 +36,7 @@ class Graphics:
         if config.color_effect:
             dynamic_shapes = []
             static_shapes = []
-            default_color = (128, 128, 128, 255)  # Default gray color
+            default_color = (128, 128, 128, 255)  
             for body in space.bodies:
                 for shape in body.shapes:
                     if isinstance(shape, pymunk.Shape):

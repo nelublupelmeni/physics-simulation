@@ -1,12 +1,9 @@
 import pygame
 import threading
-from slingshot import Slingshot
-from cannon import Cannon
 from graphics import Graphics
 from ui import SimulationUI
 from physics_world import PhysicsWorld
 import config
-
 
 def run_simulation(graphics, physics, running_event):
     """Запуск симуляции физического мира."""
@@ -68,3 +65,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

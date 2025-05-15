@@ -24,12 +24,12 @@ def plot_range_vs_angle(cannon):
     if not cannon.range_data:
         return
 
-    # Average ranges for duplicate angles
+    # Средние значения дальности для повторяющихся углов
     angle_ranges = defaultdict(list)
     for angle, range_m in cannon.range_data:
         angle_ranges[angle].append(range_m)
     averaged_data = [(angle, sum(ranges) / len(ranges)) for angle, ranges in angle_ranges.items()]
-    averaged_data.sort()  # Sort by angle
+    averaged_data.sort()  # Сортировка по углу
 
     angles, ranges = zip(*averaged_data)
 

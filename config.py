@@ -1,4 +1,4 @@
-# Simulation configuration
+# Конфигурация симуляции
 mass = 10.0
 radius = 20.0
 elasticity = 0.8
@@ -9,11 +9,11 @@ angle = 45.0
 air_resistance = 0.1
 mode = "slingshot"
 color_effect = False
-shape_type = "circle"  # Default shape for slingshot; options: circle, square, triangle, button
-static_mode = False  # True when button shape is selected for static placement
+shape_type = "circle"  
+static_mode = False  # когда не выбрана форма кнопки 
 
-# Theme configuration
-theme = "light"  # Initial theme: light
+# Конфигурация темы
+theme = "light"  # Начальная тема: светлая
 ui_colors = {
     "light": {"bg": "#ffffff", "fg": "#000000"},
     "dark": {"bg": "#1a1a1a", "fg": "#ffffff"}

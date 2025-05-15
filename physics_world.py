@@ -32,7 +32,7 @@ class PhysicsWorld:
             shape = pymunk.Poly.create_box(body, size)
             shape.elasticity = 0.4
             shape.friction = 0.5
-            shape.color = (128, 128, 128, 255)  # Default gray color for boundaries
+            shape.color = (128, 128, 128, 255)  # Серый цвет по умолчанию для границ
             self.space.add(body, shape)
 
     def add_shape(self, shape_type, radius, mass, pos, elasticity=0.9, friction=0.4):
@@ -44,11 +44,11 @@ class PhysicsWorld:
         body.position = pos
         if shape_type == "circle":
             shape = pymunk.Circle(body, radius)
-            shape.color = (255, 0, 0, 100)  # Red for circles
+            shape.color = (255, 0, 0, 100)  # Красный для кругов
         elif shape_type == "square":
             side_length = 2 * radius
             shape = pymunk.Poly.create_box(body, (side_length, side_length))
-            shape.color = (0, 0, 255, 100)  # Blue for squares
+            shape.color = (0, 0, 255, 100)  # Синий для квадратов
         elif shape_type == "triangle":
             side_length = 2 * radius
             height = (math.sqrt(3) / 2) * side_length
@@ -58,21 +58,21 @@ class PhysicsWorld:
                 (side_length / 2, height * 2 / 3)
             ]
             shape = pymunk.Poly(body, vertices)
-            shape.color = (255, 255, 0, 100)  # Yellow for triangles
+            shape.color = (255, 255, 0, 100)  # Желтый для треугольников
         elif shape_type == "button":
             shape = pymunk.Circle(body, radius)
-            shape.color = (0, 255, 0, 100)  # Green for buttons
+            shape.color = (0, 255, 0, 100)  # Зеленый для кнопок
         else:
-            raise ValueError(f"Unknown shape_type: {shape_type}")
+            raise ValueError(f"Неизвестный тип формы: {shape_type}")
         if shape_type != "button":
             shape.mass = mass
-            shape.hue = 0  # Initialize hue for color effect (dynamic shapes only)
+            shape.hue = 0 
         shape.elasticity = elasticity
         shape.friction = friction
         try:
             self.space.add(body, shape)
         except Exception as e:
-            print(f"Error adding shape to space: {e}")
+            print(f"Ошибка при добавлении формы в пространство: {e}")
             return None
         return shape
 

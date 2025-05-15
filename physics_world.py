@@ -2,6 +2,7 @@ import pymunk
 import math
 from slingshot import Slingshot
 from cannon import Cannon
+import config
 
 
 class PhysicsWorld:
@@ -10,7 +11,7 @@ class PhysicsWorld:
     def __init__(self, width, height):
         """Инициализация физического мира."""
         self.space = pymunk.Space()
-        self.space.gravity = (0, 981)
+        self.space.gravity = (0, config.gravity * 100)  # Гравитация, см/с² 
         self.width = width
         self.height = height
         self._create_boundaries()

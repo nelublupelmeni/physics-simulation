@@ -452,7 +452,7 @@ class SimulationUI:
                                            width=150, anchor="w",
                                            text_color=self._get_theme_color("fg"))
         self.velocity_label.pack(side="left", padx=5)
-        self.velocity_slider = ctk.CTkSlider(self.velocity_frame, from_=0, to=15,
+        self.velocity_slider = ctk.CTkSlider(self.velocity_frame, from_=0, to=20,
                                              variable=self.velocity_var,
                                              command=self.update_velocity, width=200)
         self.velocity_slider.pack(side="left", padx=5)
@@ -599,9 +599,9 @@ class SimulationUI:
 
     def update_gravity(self, value):
         """Обновление значения гравитации."""
-        gravity_ms2 = round(float(value), 2)
-        gravity_cm2 = gravity_ms2 * 100
-        self.physics.set_gravity(gravity_cm2)
+        gravity_ms2 = round(float(value), 2)  # Гравитация в м/с²
+        gravity_cm2 = gravity_ms2 * 100       # Гравитация в см/с²
+        self.physics.set_gravity(gravity_cm2) # Установка гравитации в физическом мире, см/с²
         self.gravity_entry.delete(0, ctk.END)
         self.gravity_entry.insert(0, str(gravity_ms2))
         config.gravity = gravity_ms2
@@ -650,8 +650,8 @@ class SimulationUI:
             self.velocity_entry.delete(0, ctk.END)
             self.velocity_entry.insert(0, str(self.INITIAL_VELOCITY))
             return
-        velocity_mps = round(float(value), 2)
-        config.initial_velocity = velocity_mps * 100
+        velocity_mps = round(float(value), 2)      # Скорость в м/с
+        config.initial_velocity = velocity_mps * 100 # Скорость в см/с
         self.velocity_entry.delete(0, ctk.END)
         self.velocity_entry.insert(0, str(velocity_mps))
 

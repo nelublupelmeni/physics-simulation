@@ -130,8 +130,8 @@ class Cannon:
                 if speed > 0 and config.air_resistance > 0:
                     rho = 1.225
                     c_d = 0.47
-                    radius_m = config.radius / 100
-                    area = math.pi * radius_m ** 2
+                    radius_m = config.radius / 100  # Преобразование радиуса из см в м
+                    area = math.pi * radius_m ** 2  # Площадь сечения, м²
                     k = 0.5 * rho * c_d * area * config.air_resistance
                     drag_force = (-k * speed * velocity[0], -k * speed * velocity[1])
                     self.ball.body.apply_force_at_local_point(drag_force, (0, 0))

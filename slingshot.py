@@ -6,7 +6,7 @@ import config
 
 class Slingshot:
     """Класс для управления рогаткой в симуляции."""
-    MAX_SLINGSHOT_LENGTH = 400.0  # Максимальная длина натяжения рогатки в пикселях
+    MAX_SLINGSHOT_LENGTH = 350.0  # Максимальная длина натяжения рогатки в пикселях
 
     def __init__(self, physics):
         """Инициализация рогатки."""
@@ -44,7 +44,6 @@ class Slingshot:
                 try:
                     self.shape.body.body_type = pymunk.Body.STATIC
                     self.is_dragging = True
-                    print(f"Выбрана существующая форма на позиции {mouse_pos}")
                 except Exception as e:
                     print(f"Ошибка при выборе формы: {e}")
                     self.shape = None
